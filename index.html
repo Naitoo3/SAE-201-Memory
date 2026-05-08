@@ -9,10 +9,32 @@
 </head>
 <body>
 <header><h1>Jeu de Memory</h1></header>
-
-<div class="setup-form">
-  <h2>Démarrer une nouvelle partie</h2>
-
+<!--Paramétrage des paramètres utilisateurs-->
+<div class="setup-form" id="game-form">
+  <form action="">
+  
+    <label for="setupName" class="settings-label">Entrez votre nom d'utilisateur :</label>
+    <input type="text" id="PlayerName" name="name" required> <!--Required car c'est obligatoire pour qu'on ait le nom exact-->
+    
+    <label for="DifficultySelect" class="settings-label">Choissisez la diffilcuté souhaitée</label>
+      <select class="options-settings" name="difficulty" id="difficultyValue">
+          <option value="">--Veuillez choisir une option--</option>
+          <option value="easy">Facile</option>
+          <option value="normal">Normal</option>
+          <option value="hard">Difficile</option> <!--Difficulté imposible est à envisager, mais on doit la tester et prouver qu'elle est possible à battre...-->
+      </select>
+    
+    <label for="imageSelect" class="settings-label">Choissisez la collection d'image souhaitée</label>
+      <select class="options-settings" name="image" id="ImageValue">
+          <option value="">--Veuillez choisir une option--</option>
+          <option value="animals">Animaux</option>
+          <option value="cars">Voitures</option>
+          <option value="fruits">Fruits</option>
+      </select>
+  </form>
+  <div class="btn-container">
+    <button class="btn-start" id="startButton" type="submit">Démarrer une nouvelle partie</button>  
+  </div>
 </div>
 
 <div class="game-area hidden">
