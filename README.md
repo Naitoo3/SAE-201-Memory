@@ -5,10 +5,10 @@ Jeu de type Memory conçu dans le cadre de la SAE 2-01
 - Renan B. 
 - Noé F.
 # idées de Fonctionalités à implémenter
-bouton thème (menu déroulant)
-Animations pour les cartes (animations de retournement)
-bruitages en cas de défaite/victoire
-compteur pour le score (calcul du score)
-leaderboard (meilleur temps)
-bouton pause
-mode hard avec le droit de retourner chaque carte une fois ou Mode Hard avec des triplets de 3 et non des paires de 2
+-bouton thème (menu déroulant)\n
+-Animations pour les cartes (animations de retournement)\n
+-bruitages en cas de défaite/victoire\n
+-compteur pour le score (calcul du score)\n
+-leaderboard (meilleur temps)\n
+-bouton pause\n
+-mode hard avec le droit de retourner chaque carte une fois ou Mode Hard avec des triplets de 3 et non des paires de 2
