@@ -1,4 +1,6 @@
 import {MEMORY_URL} from './config.js';
+import { imageCollections } from './ImageCollection.js';
+//import { imageCollections } from './ImageCollection.js';
 
 /**
  * Service pour centraliser les appels API du jeu Memory.
@@ -10,15 +12,20 @@ export class ApiService {
    * @param {number} difficulty niveau de difficulé
    * @returns {Promise<GameReturn>}
    */
-  static async createGame(pseudo, difficulty) {
+  static async createGame(pseudo, difficulty, theme) {
+
+    console.log("Starting fetch...");
+    const UserData = {
+        pseudo: pseudo,
+        difficulty: parseInt(difficulty),// conversion en entier.
+        theme: imageCollections,
+    }
     const response = await fetch(`${MEMORY_URL}/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        // Todo compléter le body
-      })
+      body: JSON.stringify(UserData)
     });
 
     if (!response.ok) {

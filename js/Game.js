@@ -1,4 +1,4 @@
-import {imageCollections} from './ImageCollection.js';
+//import {imageCollections} from './ImageCollection.js';
 import {ApiService} from './ApiService.js';
 
 
@@ -6,7 +6,9 @@ export class Game {
   /**
    * @type {number} id identifiant de la partie en cours
    */
-  #id;
+  #id; // private attributes.
+  #name;
+  #difficulty;
 
   async endGame() {
     // Todo À compléter
@@ -28,11 +30,15 @@ export class Game {
   /**
    * Start a new game.
    * @param {number} id - The game ID.
+   * @param {string} name - The player username.
+   * @param {string} difficulty - The chosen difficulty.
    */
-  startGame(id) {
+  startGame(id, name, difficulty) {
     this.#id = id;
+    this.#name = name;
+    this.#difficulty = difficulty;
 
-    // Todo À commpléter
+    // Logique principale de jeu
 
   }
 
