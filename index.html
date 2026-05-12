@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jeu de Memory</title>
+  <title>Jeu de Memori</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/app.js" type="module"></script>
 </head>
@@ -14,34 +14,36 @@
     <h1>Jeu de Memory</h1>
   </header>
   <!--Paramétrage des paramètres utilisateurs-->
-  <div class="setup-form" id="game-form">
-    <form action="">
+  <div class="game-form">
+    <form id="game-form">
 
-      <label for="setupName" class="settings-label">Entrez votre nom d'utilisateur :</label>
-      <input type="text" id="PlayerName" name="name" required>
+      <label for="PlayerName" class="settings-label">Entrez votre nom d'utilisateur :</label>
+      <input type="text" id="PlayerName" name="name" maxlength="50" required> <!--caracter limit of 50.-->
       <!--Required car c'est obligatoire pour qu'on ait le nom exact-->
 
-      <label for="DifficultySelect" class="settings-label">Choissisez la diffilcuté souhaitée</label>
-      <select class="options-settings" name="difficulty" id="difficultyValue">
+      <label for="DifficultyValue" class="settings-label">Choissisez la diffilcuté souhaitée</label>
+      <select class="options-settings" name="difficulty" id="DifficultyValue">
         <option value="">--Veuillez choisir une option--</option>
-        <option value="easy">Facile</option>
-        <option value="normal">Normal</option>
-        <option value="hard">Difficile</option>
+        <option value="1">Facile</option>
+        <option value="2">Normal</option>
+        <option value="3">Difficile</option>
         <!--Difficulté imposible est à envisager, mais on doit la tester et prouver qu'elle est possible à battre...-->
       </select>
 
-      <label for="imageSelect" class="settings-label">Choissisez la collection d'image souhaitée</label>
+      <label for="ImageValue" class="settings-label">Choissisez la collection d'image souhaitée</label>
       <select class="options-settings" name="image" id="ImageValue">
         <option value="">--Veuillez choisir une option--</option>
         <option value="animals">Animaux</option>
         <option value="cars">Voitures</option>
         <option value="fruits">Fruits</option>
       </select>
-    </form>
-    <div class="btn-container">
-      <button class="btn-start" id="startButton" type="submit">Démarrer une nouvelle partie</button>
-    </div>
+
+
+      <div class="btn-container">
+        <button class="btn-start" id="startButton" type="submit">Démarrer une nouvelle partie</button>
+      </div>
   </div>
+  </form>
 
   <div class="game-area hidden">
     <div class="game-area-header"></div>
