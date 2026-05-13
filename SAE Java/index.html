@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Memory Game</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ── En-tête ── -->
+<header>
+  <h1>🧠 Memory</h1>
+</header>
+
+<!-- ── Formulaire de démarrage ── -->
+<section class="setup-form" id="setupPanel">
+  <h2>Nouvelle partie</h2>
+  <form class="game-form" id="gameForm">
+
+    <div>
+      <label for="PlayerName">Pseudo</label>
+      <input
+              type="text"
+              id="PlayerName"
+              name="pseudo"
+              placeholder="Votre pseudo…"
+              required
+              minlength="2"
+      />
+    </div>
+
+    <div>
+      <label for="DifficultyValue">Niveau de difficulté</label>
+      <select id="DifficultyValue" name="difficulty" required>
+        <option value="" disabled selected>Choisir…</option>
+        <option value="1">Facile — 8 cartes (4 paires)</option>
+        <option value="2">Moyen — 16 cartes (8 paires)</option>
+        <option value="3">Difficile — 20 cartes (10 paires)</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="ImageValue">Collection d'images</label>
+      <select id="ImageValue" name="theme" required>
+        <option value="" disabled selected>Choisir…</option>
+        <option value="animals">Animaux 🐾</option>
+        <option value="cars">Voitures 🚗</option>
+        <option value="fruits">Fruits 🍎</option>
+      </select>
+    </div>
+
+    <div class="btn-container">
+      <button type="submit" class="btn-start" id="startButton">▶ Démarrer</button>
+    </div>
+
+  </form>
+</section>
+
+<!-- ── Zone de jeu ── -->
+<section class="game-area hidden" id="gamePanel">
+
+  <div class="game-area-header">
+    <h2 id="playerLabel">Joueur</h2>
+    <span class="game-timer" id="gameTimer">00:00</span>
+    <span class="pairs-counter" id="pairsCounter">Paires : 0 / 0</span>
+    <button id="abandon">⛔ Abandonner</button>
+  </div>
+
+  <div class="game-board" id="gameBoard"></div>
+
+</section>
+
+<!-- ── Modale de fin de partie ── -->
+<div class="modal-overlay hidden" id="endModal">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon">🎉</div>
+    <h2 class="modal-title" id="modalTitle">Partie terminée !</h2>
+    <p class="modal-body" id="modalBody"></p>
+    <button class="btn-start" id="modalRestart">↺ Rejouer</button>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
