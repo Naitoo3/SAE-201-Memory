@@ -139,7 +139,7 @@ header h1 {
   margin-top: 10px;
 }
 
-/* Theme Button */
+/* Bouton de Thème */
 .theme-container {
   display: flex;
   align-items: center;
@@ -161,6 +161,7 @@ header h1 {
 .btn-theme:hover {
   background-color: var(--color-btn-primary-hover);
 }
+/* Bouton de démarrage */
 .btn-start {
   color: white;
   height: 38px;
@@ -321,9 +322,6 @@ header h1 {
 
 /* ── Modale fin de partie ── */
 
-
-
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -360,3 +358,51 @@ header h1 {
 
 .modal-title { font-size: 1.75rem; font-weight: 700; color: var(--color-text-title); }
 .modal-body  { font-size: 1rem; color: var(--color-text-label); line-height: 1.6; }
+
+
+/* Responsive design */
+/* Téléphones  avec une largeur maximale de 480 pixels*/
+@media (max-width: 480px) {
+
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  header h1 {
+    font-size: 1.7rem;
+  }
+
+  .setup-form {
+    padding: 1.2rem;
+  }
+
+  .game-area-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .game-board,
+  .game-board.cols-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+}
+
+/* Tablettes*/
+@media (max-width: 1024px) {
+
+  .game-board,
+  .game-board.cols-5 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    width: 7rem;
+    height: 7rem;
+  }
+}
