@@ -2,6 +2,8 @@
  * @type {ImagesCollection} imageCollections
  */
 
+
+/* ────────────COLLECTIONS DES IMAGES────────────────────────── */
 export const imageCollections = {
     animals: [
         {id: 1, name: "animal1", url: "./assets/images/animals/animal1.png"},

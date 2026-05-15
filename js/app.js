@@ -1,26 +1,66 @@
-import {DOMManager} from './DOMManager.js';
-import {Game} from './Game.js';
-import {ApiService} from './ApiService.js';
-const SubmitButton = document.querySelector('#startButton'); // Submit button
+import { Game }       from './Game.js';
+import { ApiService } from './ApiService.js';
+import { DOMManager } from './DOMManager.js';
+
+// ── Instances ──────────────────────────────────────────────
+const game       = new Game();
 const domManager = new DOMManager();
-const game = new Game();
 
-document.querySelector('.game-form').addEventListener('submit', async function (event) {
-  event.preventDefault(); // Prevents refreshing.
-  try {
-    // Vérification des données
-    const PlayerName = document.querySelector('#PlayerName').value;
-    const difficulty = document.querySelector('#DifficultyValue').value;
-    const imageCollection = document.querySelector('#ImageValue').value;
+// ── Soumission du formulaire ───────────────────────────────
+document.getElementById('gameForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-    // Verification through console
-    console.log(PlayerName + " " + difficulty + " " + imageCollection);
+    const pseudo     = document.getElementById('PlayerName').value.trim();
+    const difficulty = parseInt(document.getElementById('DifficultyValue').value);
+    const theme = document.getElementById('ImageValue').value;
+    const hardcore = document.getElementById('HardcoreMode').checked;
 
-    const data = await ApiService.createGame(PlayerName, difficulty);
-    console.log('Success:', data, data.id);
-    game.startGame(data.id, PlayerName, difficulty);
-  } catch (error) {
-    console.error('Error:', error);
-    alert(error.message || 'Erreur lors de la création de la partie');
-  }
+
+    if (!pseudo || !difficulty || !theme) {
+        alert('Merci de remplir tous les champs.');
+        return;
+    }
+
+    const startBtn = document.getElementById('startButton');
+    startBtn.disabled    = true;
+    startBtn.textContent = '⏳ Connexion…';
+
+    try {
+        // Création de la partie côté serveur
+        const data = await ApiService.createGame(pseudo, difficulty);
+        console.log('Partie créée — id :', data.id);
+
+        // Démarrage local du jeu
+        game.startGame(data.id, pseudo, difficulty, theme, hardcore);
+
+
+    } catch (error) {
+        console.error('Erreur création partie :', error);
+        alert(error.message || 'Impossible de joindre le serveur. Vérifiez votre connexion.');
+    } finally {
+        startBtn.disabled    = false;
+        startBtn.textContent = '▶ Démarrer';
+    }
 });
+
+// ── Bouton Abandonner ──────────────────────────────────────
+document.getElementById('abandon').addEventListener('click', () => {
+    if (confirm('Voulez-vous vraiment abandonner la partie ?')) {
+        game.endGame(false);
+    }
+});
+
+// ── Bouton Rejouer (modale) ────────────────────────────────
+document.getElementById('modalRestart').addEventListener('click', () => {
+    domManager.hideEndModal();
+    domManager.showSetup();
+    document.getElementById('gameForm').reset();
+});
+// ── Bouton de thème ────────────────────────────────────────
+const buttonTheme = document.getElementById('btn-theme');
+
+buttonTheme.addEventListener('click', () => {
+    document.body.classList.toggle('light');
+});
+
+
