@@ -1,54 +1,101 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jeu de Memori</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/app.js" type="module"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jeu de Memory</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
-  <header>
-    <h1>Jeu de Memory</h1>
-  </header>
-  <!--Paramétrage des paramètres utilisateurs-->
-  <div class="game-form" id="game-form">
-    <form action="/js/ApiService.js">
 
-      <label for="PlayerName" class="settings-label">Entrez votre nom d'utilisateur :</label>
-      <input type="text" id="PlayerName" name="name" maxlength="50" required> <!--caracter limit of 50.-->
-      <!--Required car c'est obligatoire pour qu'on ait le nom exact-->
-
-      <label for="DifficultyValue" class="settings-label">Choissisez la diffilcuté souhaitée</label>
-      <select class="options-settings" name="difficulty" id="DifficultyValue">
-        <option value="">--Veuillez choisir une option--</option>
-        <option value="easy">Facile</option>
-        <option value="normal">Normal</option>
-        <option value="hard">Difficile</option>
-        <!--Difficulté imposible est à envisager, mais on doit la tester et prouver qu'elle est possible à battre...-->
-      </select>
-
-      <label for="ImageValue" class="settings-label">Choissisez la collection d'image souhaitée</label>
-      <select class="options-settings" name="image" id="ImageValue">
-        <option value="">--Veuillez choisir une option--</option>
-        <option value="animals">Animaux</option>
-        <option value="cars">Voitures</option>
-        <option value="fruits">Fruits</option>
-      </select>
-
-
-      <div class="btn-container">
-        <button class="btn-start" id="startButton" type="submit">Démarrer une nouvelle partie</button>
-      </div>
+<!-- ── En-tête ── -->
+<header class="header">
+  <h1>Jeu de Memory</h1>
+  <div class="theme-container">
+    <button class="btn-theme" id="btn-theme">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
+        <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286"/>
+      </svg>
+    </button>
   </div>
+</header>
+
+<!-- ──   Bouton de thème ── -->
+
+
+
+<!-- ── Formulaire de démarrage ── -->
+<section class="setup-form" id="setupPanel">
+  <h2>Démarrer une nouvelle partie :</h2>
+  <form class="game-form" id="gameForm">
+
+    <div>
+      <label for="PlayerName">Pseudo</label>
+      <input
+              type="text"
+              id="PlayerName"
+              name="pseudo"
+              placeholder="Votre pseudo…"
+              required
+              minlength="2"
+              maxlength="50"
+      />
+    </div>
+
+    <!-- Liste deroulante pour selectioner la difficulte-->
+    <div>
+      <label for="DifficultyValue">Niveau de difficulté</label>
+      <select id="DifficultyValue" name="difficulty" required>
+        <option value="" disabled selected>Choisir…</option>
+        <option value="1">Facile — 8 cartes (4 paires)</option>
+        <option value="2">Moyen — 16 cartes (8 paires)</option>
+        <option value="3">Difficile — 20 cartes (10 paires)</option>
+      </select>
+    </div>
+
+    <!-- Liste deroulante pour la selection d'images -->
+    <div>
+      <label for="ImageValue">Collection d'images</label>
+      <select id="ImageValue" name="theme" required>
+        <option value="" disabled selected>Choisir…</option>
+        <option value="animals">Animaux 🐾</option>
+        <option value="cars">Voitures 🚗</option>
+        <option value="fruits">Fruits 🍎</option>
+      </select>
+    </div>
+
+    <!--Bouton d'envoi des donnees du formulaire au serveur -->
+    <div class="btn-container">
+      <button type="submit" class="btn-start" id="startButton">▶ Démarrer</button>
+    </div>
+
   </form>
+</section>
 
-  <div class="game-area hidden">
-    <div class="game-area-header"></div>
-    <div class="game-board"></div>
+<!-- ── Zone de jeu ── -->
+<section class="game-area hidden" id="gamePanel">
+
+  <div class="game-area-header">
+    <h2 id="playerLabel">Joueur</h2>
+    <span class="game-timer" id="gameTimer">00:00</span>
+    <span class="pairs-counter" id="pairsCounter">Paires : 0 / 0</span>
+    <button id="abandon">⛔ Abandonner</button>
   </div>
-</body>
 
+  <div class="game-board" id="gameBoard"></div>
+
+</section>
+
+<!-- ── Modale de fin de partie ── -->
+<div class="modal-overlay hidden " id="endModal">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon">🎉</div>
+    <h2 class="modal-title" id="modalTitle">Partie terminée !</h2>
+    <p class="modal-body" id="modalBody"></p>
+    <button class="btn-start" id="modalRestart">↺ Rejouer</button>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
 </html>
