@@ -17,6 +17,7 @@
   --color-text-label:   oklch(0.869 0.02 252.894);
   --color-text-input:   oklch(0.869 0.02 252.894);
   --color-text-white:   oklch(1 0 89.876);
+  --color-text-white-theme: #22222;
 
   --color-btn-primary:       oklch(0.508 0.105 165.612);
   --color-btn-primary-hover: oklch(0.596 0.127 163.225);
@@ -48,7 +49,7 @@
 
   --color-btn-primary: #10b981;
   --color-btn-primary-hover: #059669;
-
+  --color-text-white-theme: #ffffff;
   --color-btn-danger: #ef4444;
   --color-btn-danger-hover: #dc2626;
 
@@ -59,6 +60,7 @@
 }
 /* ── Reset & base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 
 body {
   display: flex;
@@ -72,9 +74,9 @@ body {
 
 /* ── Header ── */
 .header {
-  display: flex; /* gimmick to properly center both the button and the title */
+  display: flex;
   gap: 40px;
- align-items:center;
+  align-items:center;
 }
 
 header h1 {
@@ -84,7 +86,31 @@ header h1 {
   text-align: center;
   margin-top: 0.5rem;
 }
+/* ── Bouton thème (SVG lune/soleil) ── */
+.btn-theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-btn-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  border:none;
+}
 
+.btn-theme:hover {
+  background-color: var(--color-btn-primary-hover);
+}
+
+/* Icônes SVG */
+/* Par défaut (mode sombre) : lune visible, soleil caché */
+#icon-sun  { display: none; }
+#icon-moon { display: block; }
+
+/* Mode clair : soleil visible, lune cachée */
+body.light #icon-sun  { display: block; }
+body.light #icon-moon { display: none; }
 /* ── Setup panel ── */
 .setup-form {
   margin-top: 1.5rem;
@@ -114,7 +140,8 @@ header h1 {
   margin-bottom: 0.25rem;
 }
 
-.game-form input,
+/* Exclut la checkbox du style générique des inputs */
+.game-form input:not([type="checkbox"]),
 .game-form select {
   display: block;
   width: 100%;
@@ -127,7 +154,7 @@ header h1 {
   outline: none;
 }
 
-.game-form input:focus,
+.game-form input:not([type="checkbox"]):focus,
 .game-form select:focus {
   border-color: var(--color-border-input-focus);
   box-shadow: 0 0 0 2px var(--color-border-input);
@@ -139,29 +166,7 @@ header h1 {
   margin-top: 10px;
 }
 
-/* Bouton de Thème */
-.theme-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-theme {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color: var(--color-btn-primary);
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
-  cursor: pointer;
-  border:none;
-}
-.btn-theme:hover {
-  background-color: var(--color-btn-primary-hover);
-}
-/* Bouton de démarrage */
+/* Theme Button */
 .btn-start {
   color: white;
   height: 38px;
@@ -182,6 +187,56 @@ header h1 {
 }
 
 .btn-start:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Hardcore Mode Toggle ── */
+.hardcore-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  width: auto;
+}
+
+.hardcore-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;        /* empêche l'étirement horizontal */
+  flex-shrink: 0;         /* ne se compresse pas dans le flex */
+  border: 2px solid var(--color-border-input);
+  border-radius: 4px;
+  background-color: var(--color-bg-input);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.hardcore-checkbox:hover {
+  border-color: var(--color-btn-primary);
+}
+
+.hardcore-checkbox:checked {
+  background-color: var(--color-btn-primary);
+  border-color: var(--color-btn-primary);
+}
+
+.hardcore-checkbox:checked::after {
+  content: "✔";
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+}
+
+.hardcore-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-label);
+  cursor: pointer;
+}
+
 
 /* ── Game area ── */
 .game-area {
@@ -320,6 +375,32 @@ header h1 {
   animation: matched-pop 0.4s ease 0.3s both;
 }
 
+/* ── Hardcore mode animations ── */
+
+/* Shake animation (échec ou swap) */
+.card.shake .card-inner {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+
+/* Swap pulse animation */
+.card.swap {
+  animation: swapPulse 0.4s ease;
+}
+
+@keyframes swapPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
 /* ── Modale fin de partie ── */
 
 .modal-overlay {
@@ -382,14 +463,19 @@ header h1 {
     text-align: center;
   }
 
-  .game-board,
+  .game-board {
+    gap: 0.5rem;
+    grid-template-columns: repeat(3, 1fr);
+
+  }
   .game-board.cols-5 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .card {
-    width: 5.5rem;
-    height: 5.5rem;
+    width: 100%;
+    aspect-ratio: 1/1;
+    height: auto;
   }
 }
 

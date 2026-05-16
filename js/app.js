@@ -55,7 +55,6 @@ document.getElementById('modalRestart').addEventListener('click', () => {
 });
 // ── Bouton de thème ────────────────────────────────────────
 const buttonTheme = document.getElementById('btn-theme');
-
 buttonTheme.addEventListener('click', () => {
   document.body.classList.toggle('light');
 });

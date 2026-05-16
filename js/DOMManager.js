@@ -2,7 +2,7 @@
  * Gère toutes les interactions avec le DOM :
  * création des cartes, affichage/masquage des panneaux,
  * chronomètre, compteur de paires, modale de fin.
- */
+ **/
 export class DOMManager {
 
   // ── Références DOM ───────────────────────────────────────
@@ -22,7 +22,7 @@ export class DOMManager {
     this.#gamePanel.classList.remove('hidden');
   }
 
-  /** Affiche le formulaire et cache la zone de jeu. */
+  /** Affiche le formulaire et cache la zone de jeu. **/
   showSetup() {
     this.#gamePanel.classList.add('hidden');
     this.#setupPanel.classList.remove('hidden');
@@ -34,7 +34,7 @@ export class DOMManager {
    * Affiche le pseudo du joueur dans l'en-tête de jeu.
    * @param {string} name
    * @return none
-   */
+   **/
   setPlayerName(name) {
     this.#playerLabel.textContent = `👤 ${name}`;
   }
@@ -44,7 +44,7 @@ export class DOMManager {
   /**
    * Met à jour l'affichage du temps au format mm:ss.
    * @param {number} seconds
-   */
+   **/
   updateTimer(seconds) {
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
     const ss = String(seconds % 60).padStart(2, '0');
@@ -57,7 +57,7 @@ export class DOMManager {
   /**
    * @param {number} found - Paires trouvées
    * @param {number} total - Paires totales
-   */
+   **/
   updatePairsCounter(found, total) {
     this.#pairsEl.textContent = `Paires : ${found} / ${total}`;
   }
@@ -136,9 +136,19 @@ export class DOMManager {
   showEndModal(won, seconds, found, total) {
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
     const ss = String(seconds % 60).padStart(2, '0');
+    const LoseSound = new Audio("./assets/sounds/lose.wav");
+    const WinSound = new Audio("./assets/sounds/win.wav");
 
     document.getElementById('modalIcon').textContent  = won ? '🎉' : '😔';
-    document.getElementById('modalTitle').textContent = won ? 'Bravo !' : 'Partie abandonnée';
+    if(won) {
+      document.getElementById('modalTitle').textContent = 'Bravo !';
+      WinSound.play();
+
+    } else {
+      document.getElementById('modalTitle').textContent = 'Vous avez perdu!';
+      LoseSound.play();
+    }
+
     document.getElementById('modalBody').textContent  = won
         ? `Toutes les paires trouvées en ${mm}:${ss} !`
         : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
@@ -154,12 +164,10 @@ export class DOMManager {
   // ── Utilitaire privé ─────────────────────────────────────
 
   /**
-   * Mélange un tableau en place (Fisher-Yates) et retourne une copie.
-   * @template T
-   * @param {T[]} arr
-   * @returns {T[]}
-   */
-  // TODO: FAIRE LA DOC DU SHUFFLE
+   * Algorithme de mélange de Fisher-Yates
+   * @param {arr} - un tableau de cartes
+   * @returns {T[]} - un tableau de cartes mélangés.
+   **/
   #shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {

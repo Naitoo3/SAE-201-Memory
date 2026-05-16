@@ -14,6 +14,9 @@ export const imageCollections = {
         {id: 6, name: "animal6", url: "./assets/images/animals/animal6.png"},
         {id: 7, name: "animal7", url: "./assets/images/animals/animal7.png"},
         {id: 8, name: "animal8", url: "./assets/images/animals/animal8.png"},
+        {id: 9, name: "animal9", url: "./assets/images/animals/animal9.png"},
+        {id: 10, name: "animal10",url: "./assets/images/animals/animal10.png"},
+
 
     ],
     fruits: [
@@ -25,6 +28,9 @@ export const imageCollections = {
         {id: 6, name: "fruit6", url: "./assets/images/fruits/fruit6.png"},
         {id: 7, name: "fruit7", url: "./assets/images/fruits/fruit7.png"},
         {id: 8, name: "fruit8", url: "./assets/images/fruits/fruit8.png"},
+        {id: 9, name: "fruit9", url: "./assets/images/fruits/fruit9.png"},
+        {id: 10, name: "fruit10", url: "./assets/images/fruits/fruit10.png"},
+
 
     ],
     cars: [
@@ -36,6 +42,8 @@ export const imageCollections = {
         {id: 6, name: "car6", url: "./assets/images/cars/car6.png"},
         {id: 7, name: "car7", url: "./assets/images/cars/car7.png"},
         {id: 8, name: "car8", url: "./assets/images/cars/car8.png"},
+        {id: 9, name: "car9", url: "./assets/images/cars/car9.png"},
+        {id: 10, name: "car10", url: "./assets/images/cars/car10.png"},
 
     ],
 };

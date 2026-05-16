@@ -49,6 +49,6 @@ export class ApiService {
       throw new Error(`Erreur serveur (${response.status}) lors de la fin de partie`);
     }
 
-    return response.json();
+    return;
   }
 }
