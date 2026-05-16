@@ -5,9 +5,9 @@ Jeu de type Memory conçu dans le cadre de la SAE 2-01
 - Renan BELLEC
 - Noé FLIPO
 # idées de Fonctionalités à implémenter
-- Bouton thème (menu déroulant)
-- Animations pour les cartes (animations de retournement)
-- Bruitages en cas de défaite/victoire
+- Bouton thème (menu déroulant) ✅
+- Bruitages en cas de défaite/victoire ✅
+- Chronomètre décroissant en fonction de la difficulté ✅
 - Compteur pour le score (calcul du score)
 - Leaderboard (meilleur temps)
 - Bouton pause
