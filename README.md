@@ -6,8 +6,9 @@ Jeu de type Memory conçu dans le cadre de la SAE 2-01
 - Noé FLIPO
 # idées de Fonctionalités à implémenter
 - Bouton thème (menu déroulant) ✅
-- Animations pour les cartes (animations de retournement)
-- Bruitages en cas de défaite/victoire
+- Animations pour les cartes (animations de retournement) ✅
+- Bruitages en cas de défaite/victoire ✅
+
 - Compteur pour le score (calcul du score)
 - Leaderboard (meilleur temps)
 - Bouton pause
