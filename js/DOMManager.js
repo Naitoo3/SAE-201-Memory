@@ -1,8 +1,8 @@
 /**
  * Gère toutes les interactions avec le DOM :
  * création des cartes, affichage/masquage des panneaux,
- * chronomètre, compteur de paires, modale de fin.
- */
+ * chronomètre, compteur de paires, modale de fin, overlay de pause.
+ **/
 export class DOMManager {
 
     // ── Références DOM ───────────────────────────────────────
@@ -13,6 +13,8 @@ export class DOMManager {
     #pairsEl     = document.getElementById('pairsCounter');
     #playerLabel = document.getElementById('playerLabel');
     #endModal    = document.getElementById('endModal');
+    #pauseOverlay = document.getElementById('pauseOverlay');
+    #pauseBtn    = document.getElementById('pauseButton');
 
     // ── Visibilité des panneaux ──────────────────────────────
 
@@ -22,7 +24,7 @@ export class DOMManager {
         this.#gamePanel.classList.remove('hidden');
     }
 
-    /** Affiche le formulaire et cache la zone de jeu. */
+    /** Affiche le formulaire et cache la zone de jeu. **/
     showSetup() {
         this.#gamePanel.classList.add('hidden');
         this.#setupPanel.classList.remove('hidden');
@@ -33,8 +35,7 @@ export class DOMManager {
     /**
      * Affiche le pseudo du joueur dans l'en-tête de jeu.
      * @param {string} name
-     * @return none
-     */
+     **/
     setPlayerName(name) {
         this.#playerLabel.textContent = `👤 ${name}`;
     }
@@ -44,22 +45,45 @@ export class DOMManager {
     /**
      * Met à jour l'affichage du temps au format mm:ss.
      * @param {number} seconds
-     */
+     **/
     updateTimer(seconds) {
         const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
         const ss = String(seconds % 60).padStart(2, '0');
         this.#timerEl.textContent = `${mm}:${ss}`;
     }
 
-
     // ── Compteur de paires ───────────────────────────────────
 
     /**
      * @param {number} found - Paires trouvées
      * @param {number} total - Paires totales
-     */
+     **/
     updatePairsCounter(found, total) {
         this.#pairsEl.textContent = `Paires : ${found} / ${total}`;
+    }
+
+    // ── Pause ────────────────────────────────────────────────
+
+    /**
+     * Affiche l'overlay de pause par-dessus le plateau.
+     * Les cartes deviennent invisibles tant que la pause est active.
+     */
+    showPauseOverlay() {
+        this.#pauseOverlay.classList.remove('hidden');
+    }
+
+    /** Cache l'overlay de pause. */
+    hidePauseOverlay() {
+        this.#pauseOverlay.classList.add('hidden');
+    }
+
+    /**
+     * Met à jour l'icône et le title du bouton pause selon l'état.
+     * @param {boolean} isPaused
+     */
+    setPauseButton(isPaused) {
+        if (!this.#pauseBtn) return;
+        this.#pauseBtn.textContent = isPaused ? '▶ Reprendre' : '⏸ Pause';
     }
 
     // ── Création des cartes ──────────────────────────────────
@@ -67,29 +91,23 @@ export class DOMManager {
     /**
      * Vide le plateau, crée et insère toutes les cartes mélangées.
      *
-     * Chaque image est doublée pour former une paire.
-     * Le chemin du masque est relatif à index.html (racine du projet).
-     *
      * @param {import('./types.js').Image[]} images  - Une image par paire souhaitée
      * @param {(card: HTMLElement) => void}  onClick - Callback de clic
      */
     createCards(images, onClick) {
         this.#gameBoard.innerHTML = '';
 
-        // Grille 5 colonnes au-delà de 16 cartes (diff. 3 → 20 cartes)
         if (images.length * 2 > 16) {
             this.#gameBoard.classList.add('cols-5');
         } else {
             this.#gameBoard.classList.remove('cols-5');
         }
 
-        // Duplique chaque image pour former les paires, puis mélange
         const deck = this.#shuffle([...images, ...images]);
 
         deck.forEach((image) => {
             const card = document.createElement('div');
             card.classList.add('card');
-            // data-image-id sert à comparer les deux cartes retournées
             card.dataset.imageId = image.id;
 
             card.innerHTML = `
@@ -128,18 +146,28 @@ export class DOMManager {
 
     /**
      * Affiche la modale avec le résultat de la partie.
-     * @param {boolean} won     - true = victoire, false = abandon
-     * @param {number}  seconds - Temps total en secondes
+     * @param {boolean} won     - true = victoire, false = abandon/timeout
+     * @param {number}  seconds - Temps écoulé en secondes
      * @param {number}  found   - Paires trouvées
      * @param {number}  total   - Paires totales
      */
     showEndModal(won, seconds, found, total) {
         const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
         const ss = String(seconds % 60).padStart(2, '0');
+        const LoseSound = new Audio('./assets/sounds/lose.wav');
+        const WinSound  = new Audio('./assets/sounds/win.wav');
 
-        document.getElementById('modalIcon').textContent  = won ? '🎉' : '😔';
-        document.getElementById('modalTitle').textContent = won ? 'Bravo !' : 'Partie abandonnée';
-        document.getElementById('modalBody').textContent  = won
+        document.getElementById('modalIcon').textContent = won ? '🎉' : '😔';
+
+        if (won) {
+            document.getElementById('modalTitle').textContent = 'Bravo !';
+            WinSound.play();
+        } else {
+            document.getElementById('modalTitle').textContent = 'Vous avez perdu !';
+            LoseSound.play();
+        }
+
+        document.getElementById('modalBody').textContent = won
             ? `Toutes les paires trouvées en ${mm}:${ss} !`
             : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
 
@@ -154,12 +182,11 @@ export class DOMManager {
     // ── Utilitaire privé ─────────────────────────────────────
 
     /**
-     * Mélange un tableau en place (Fisher-Yates) et retourne une copie.
+     * Algorithme de mélange Fisher-Yates.
      * @template T
-     * @param {T[]} arr
-     * @returns {T[]}
-     */
-    // TODO: FAIRE LA DOC DU SHUFFLE
+     * @param {T[]} arr - Tableau source (non modifié)
+     * @returns {T[]}   - Nouvelle copie mélangée
+     **/
     #shuffle(arr) {
         const a = [...arr];
         for (let i = a.length - 1; i > 0; i--) {

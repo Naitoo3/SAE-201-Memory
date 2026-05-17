@@ -17,6 +17,7 @@
     --color-text-label:   oklch(0.869 0.02 252.894);
     --color-text-input:   oklch(0.869 0.02 252.894);
     --color-text-white:   oklch(1 0 89.876);
+    --color-text-white-theme: #222222;
 
     --color-btn-primary:       oklch(0.508 0.105 165.612);
     --color-btn-primary-hover: oklch(0.596 0.127 163.225);
@@ -27,36 +28,38 @@
     --color-card-matched-border: oklch(0.696 0.149 162.48);
     --color-card-matched-glow:   oklch(0.696 0.149 162.48 / 0.35);
 }
-.light {
-    --color-bg-page: #f5f5f5;
-    --color-bg-panel: #ffffff;
-    --color-bg-input: #eeeeee;
-    --color-bg-card-front: #dcdcdc;
-    --color-bg-card-back: #ffffff;
 
-    --color-border-input: #cccccc;
+.light {
+    --color-bg-page:   #f5f5f5;
+    --color-bg-panel:  #ffffff;
+    --color-bg-input:  #eeeeee;
+    --color-bg-card-front: #dcdcdc;
+    --color-bg-card-back:  #ffffff;
+
+    --color-border-input:       #cccccc;
     --color-border-input-focus: #999999;
-    --color-border-card: #bbbbbb;
+    --color-border-card:        #bbbbbb;
 
     --color-btn-theme: #d6d6d6;
 
-    --color-text-title: #222222;
+    --color-text-title:   #222222;
     --color-text-heading: #333333;
-    --color-text-label: #444444;
-    --color-text-input: #222222;
-    --color-text-white: #ffffff;
+    --color-text-label:   #444444;
+    --color-text-input:   #222222;
+    --color-text-white:   #ffffff;
+    --color-text-white-theme: #ffffff;
 
-    --color-btn-primary: #10b981;
+    --color-btn-primary:       #10b981;
     --color-btn-primary-hover: #059669;
-
-    --color-btn-danger: #ef4444;
-    --color-btn-danger-hover: #dc2626;
+    --color-btn-danger:        #ef4444;
+    --color-btn-danger-hover:  #dc2626;
 
     --color-timer: #059669;
 
     --color-card-matched-border: #10b981;
-    --color-card-matched-glow: rgba(16, 185, 129, 0.35);
+    --color-card-matched-glow:   rgba(16, 185, 129, 0.35);
 }
+
 /* ── Reset & base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -74,7 +77,7 @@ body {
 .header {
     display: flex;
     gap: 40px;
-    align-items:center;
+    align-items: center;
 }
 
 header h1 {
@@ -84,6 +87,7 @@ header h1 {
     text-align: center;
     margin-top: 0.5rem;
 }
+
 /* ── Bouton thème (SVG lune/soleil) ── */
 .btn-theme {
     display: flex;
@@ -94,14 +98,14 @@ header h1 {
     height: 40px;
     border-radius: 5px;
     cursor: pointer;
-    border:none;
+    border: none;
+    color: white;
 }
 
 .btn-theme:hover {
     background-color: var(--color-btn-primary-hover);
 }
 
-/* Icônes SVG */
 /* Par défaut (mode sombre) : lune visible, soleil caché */
 #icon-sun  { display: none; }
 #icon-moon { display: block; }
@@ -109,6 +113,7 @@ header h1 {
 /* Mode clair : soleil visible, lune cachée */
 body.light #icon-sun  { display: block; }
 body.light #icon-moon { display: none; }
+
 /* ── Setup panel ── */
 .setup-form {
     margin-top: 1.5rem;
@@ -138,7 +143,6 @@ body.light #icon-moon { display: none; }
     margin-bottom: 0.25rem;
 }
 
-/* Exclut la checkbox du style générique des inputs */
 .game-form input:not([type="checkbox"]),
 .game-form select {
     display: block;
@@ -164,7 +168,7 @@ body.light #icon-moon { display: none; }
     margin-top: 10px;
 }
 
-/* Theme Button */
+/* ── Bouton démarrage ── */
 .btn-start {
     color: white;
     height: 38px;
@@ -199,8 +203,8 @@ body.light #icon-moon { display: none; }
     appearance: none;
     width: 18px;
     height: 18px;
-    min-width: 18px;        /* empêche l'étirement horizontal */
-    flex-shrink: 0;         /* ne se compresse pas dans le flex */
+    min-width: 18px;
+    flex-shrink: 0;
     border: 2px solid var(--color-border-input);
     border-radius: 4px;
     background-color: var(--color-bg-input);
@@ -209,9 +213,7 @@ body.light #icon-moon { display: none; }
     transition: all 0.2s ease;
 }
 
-.hardcore-checkbox:hover {
-    border-color: var(--color-btn-primary);
-}
+.hardcore-checkbox:hover { border-color: var(--color-btn-primary); }
 
 .hardcore-checkbox:checked {
     background-color: var(--color-btn-primary);
@@ -234,7 +236,6 @@ body.light #icon-moon { display: none; }
     color: var(--color-text-label);
     cursor: pointer;
 }
-
 
 /* ── Game area ── */
 .game-area {
@@ -275,6 +276,32 @@ body.light #icon-moon { display: none; }
     letter-spacing: 0.05em;
 }
 
+/* ── Bouton Pause ── */
+.btn-pause {
+    padding: 0.5rem 1rem;
+    background-color: oklch(0.6 0.12 250);
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    font-size: 0.9rem;
+}
+
+.btn-pause:hover {
+    background-color: oklch(0.5 0.12 250);
+}
+
+.light .btn-pause {
+    background-color: #6366f1;
+}
+
+.light .btn-pause:hover {
+    background-color: #4f46e5;
+}
+
+/* ── Bouton Abandonner ── */
 #abandon {
     padding: 0.5rem 1rem;
     background-color: var(--color-btn-danger);
@@ -288,6 +315,11 @@ body.light #icon-moon { display: none; }
 
 #abandon:hover { background-color: var(--color-btn-danger-hover); }
 
+/* ── Board wrapper (pour positionner l'overlay) ── */
+.game-board-wrapper {
+    position: relative;
+}
+
 /* ── Board ── */
 .game-board {
     display: grid;
@@ -297,6 +329,49 @@ body.light #icon-moon { display: none; }
 }
 
 .game-board.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+/* ── Overlay de pause ── */
+.pause-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.pause-overlay-content {
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pause-icon {
+    font-size: 3rem;
+    animation: pausePulse 1.5s ease infinite;
+}
+
+@keyframes pausePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.9); }
+}
+
+.pause-overlay-content p {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.pause-hint {
+    font-size: 0.9rem !important;
+    font-weight: 400 !important;
+    opacity: 0.75;
+}
 
 /* ── Hidden ── */
 .hidden { display: none !important; }
@@ -374,21 +449,18 @@ body.light #icon-moon { display: none; }
 }
 
 /* ── Hardcore mode animations ── */
-
-/* Shake animation (échec ou swap) */
 .card.shake .card-inner {
     animation: shake 0.4s ease;
 }
 
 @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    50% { transform: translateX(6px); }
-    75% { transform: translateX(-6px); }
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-6px); }
+    50%  { transform: translateX(6px); }
+    75%  { transform: translateX(-6px); }
     100% { transform: translateX(0); }
 }
 
-/* Swap pulse animation */
 .card.swap {
     animation: swapPulse 0.4s ease;
 }
@@ -425,9 +497,7 @@ body.light #icon-moon { display: none; }
     gap: 1rem;
 }
 
-.modal-score {
-    color: var(--color-text-title);
-}
+.modal-score { color: var(--color-text-title); }
 
 .modal-icon { font-size: 3.5rem; animation: bounce 0.6s ease infinite alternate; }
 
@@ -439,36 +509,23 @@ body.light #icon-moon { display: none; }
 .modal-title { font-size: 1.75rem; font-weight: 700; color: var(--color-text-title); }
 .modal-body  { font-size: 1rem; color: var(--color-text-label); line-height: 1.6; }
 
-/* ───────────────────────────────────────────── */
-/*                 RESPONSIVE                    */
-/* ───────────────────────────────────────────── */
+/* ── Responsive ── */
 @media (max-width: 480px) {
-    .header {
-        flex-direction: column;
-        gap: 15px;
-    }
+    .header { flex-direction: column; gap: 15px; }
+    header h1 { font-size: 1.7rem; }
+    .setup-form { padding: 1.2rem; }
+    .game-area-header { flex-direction: column; text-align: center; }
 
-    header h1 {
-        font-size: 1.7rem;
+    .game-board {
+        gap: 0.5rem;
+        grid-template-columns: repeat(3, 1fr);
     }
-
-    .setup-form {
-        padding: 1.2rem;
-    }
-
-    .game-area-header {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .game-board,
-    .game-board.cols-5 {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .game-board.cols-5 { grid-template-columns: repeat(3, 1fr); }
 
     .card {
-        width: 5.5rem;
-        height: 5.5rem;
+        width: 100%;
+        aspect-ratio: 1/1;
+        height: auto;
     }
 }
 
@@ -478,8 +535,5 @@ body.light #icon-moon { display: none; }
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .card {
-        width: 7rem;
-        height: 7rem;
-    }
+    .card { width: 7rem; height: 7rem; }
 }

@@ -12,9 +12,8 @@ document.getElementById('gameForm').addEventListener('submit', async (event) => 
 
     const pseudo     = document.getElementById('PlayerName').value.trim();
     const difficulty = parseInt(document.getElementById('DifficultyValue').value);
-    const theme = document.getElementById('ImageValue').value;
-    const hardcore = document.getElementById('HardcoreMode').checked;
-
+    const theme      = document.getElementById('ImageValue').value;
+    const hardcore   = document.getElementById('HardcoreMode').checked;
 
     if (!pseudo || !difficulty || !theme) {
         alert('Merci de remplir tous les champs.');
@@ -26,14 +25,9 @@ document.getElementById('gameForm').addEventListener('submit', async (event) => 
     startBtn.textContent = '⏳ Connexion…';
 
     try {
-        // Création de la partie côté serveur
         const data = await ApiService.createGame(pseudo, difficulty);
         console.log('Partie créée — id :', data.id);
-
-        // Démarrage local du jeu
         game.startGame(data.id, pseudo, difficulty, theme, hardcore);
-
-
     } catch (error) {
         console.error('Erreur création partie :', error);
         alert(error.message || 'Impossible de joindre le serveur. Vérifiez votre connexion.');
@@ -41,6 +35,11 @@ document.getElementById('gameForm').addEventListener('submit', async (event) => 
         startBtn.disabled    = false;
         startBtn.textContent = '▶ Démarrer';
     }
+});
+
+// ── Bouton Pause ───────────────────────────────────────────
+document.getElementById('pauseButton').addEventListener('click', () => {
+    game.togglePause();
 });
 
 // ── Bouton Abandonner ──────────────────────────────────────
@@ -56,11 +55,8 @@ document.getElementById('modalRestart').addEventListener('click', () => {
     domManager.showSetup();
     document.getElementById('gameForm').reset();
 });
-// ── Bouton de thème ────────────────────────────────────────
-const buttonTheme = document.getElementById('btn-theme');
 
-buttonTheme.addEventListener('click', () => {
+// ── Bouton de thème ────────────────────────────────────────
+document.getElementById('btn-theme').addEventListener('click', () => {
     document.body.classList.toggle('light');
 });
-
-
