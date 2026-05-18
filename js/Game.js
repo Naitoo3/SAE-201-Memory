@@ -61,7 +61,7 @@ export class Game {
 
     // Nombre de paires selon la difficulté (config.js)
     this.#totalPairs = DIFFICULTY_PAIRS[difficulty] ?? 4;
-    this.#elapsedSecs = DIFFICULTY_TIME[difficulty] ?? 60;
+    this.#elapsedSecs = DIFFICULTY_TIME[difficulty] ?? 30;
 
     // Sélection des images de la collection choisie
     // Les collections ont 8 images : pour diff. 3 (10 paires) on boucle sur les 2 premières

@@ -14,14 +14,13 @@ export const DIFFICULTY_PAIRS = {
     1: 4,
     2: 8,
     3: 10,
-    4: 12,
 };
 /**
  * Structure typée contenant les temps moyens en secondes pour chacune des difficultés.
  * @type {{1: number, 2: number, 3: number}}
  */
 export const DIFFICULTY_TIME = {
-    1: 90,   // 1 minute 30 en secondes.
-    2: 60,  // 1 minute en secondes.
-    3: 30,  // 30 secondes.
+    1: 30,
+    2: 45,
+    3: 60,
 };
