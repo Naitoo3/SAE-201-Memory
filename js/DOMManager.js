@@ -5,14 +5,17 @@
  **/
 export class DOMManager {
 
-  // ── Références DOM ───────────────────────────────────────
-  #setupPanel  = document.getElementById('setupPanel');
-  #gamePanel   = document.getElementById('gamePanel');
-  #gameBoard   = document.getElementById('gameBoard');
-  #timerEl     = document.getElementById('gameTimer');
-  #pairsEl     = document.getElementById('pairsCounter');
-  #playerLabel = document.getElementById('playerLabel');
-  #endModal    = document.getElementById('endModal');
+    // ── Références DOM ───────────────────────────────────────
+    #setupPanel  = document.getElementById('setupPanel');
+    #gamePanel   = document.getElementById('gamePanel');
+    #gameBoard   = document.getElementById('gameBoard');
+    #timerEl     = document.getElementById('gameTimer');
+    #pairsEl     = document.getElementById('pairsCounter');
+    #playerLabel = document.getElementById('playerLabel');
+    #endModal    = document.getElementById('endModal');
+    #pauseOverlay = document.getElementById('pauseOverlay');
+    #pauseBtn    = document.getElementById('pauseButton');
+
 
   // ── Visibilité des panneaux ──────────────────────────────
 
@@ -61,6 +64,30 @@ export class DOMManager {
   updatePairsCounter(found, total) {
     this.#pairsEl.textContent = `Paires : ${found} / ${total}`;
   }
+  
+   // ── Pause ────────────────────────────────────────────────
+
+    /**
+     * Affiche l'overlay de pause par-dessus le plateau.
+     * Les cartes deviennent invisibles tant que la pause est active.
+     */
+    showPauseOverlay() {
+        this.#pauseOverlay.classList.remove('hidden');
+    }
+
+    /** Cache l'overlay de pause. */
+    hidePauseOverlay() {
+        this.#pauseOverlay.classList.add('hidden');
+    }
+
+    /**
+     * Met à jour l'icône et le title du bouton pause selon l'état.
+     * @param {boolean} isPaused
+     */
+    setPauseButton(isPaused) {
+        if (!this.#pauseBtn) return;
+        this.#pauseBtn.textContent = isPaused ? '▶ Reprendre' : '⏸ Pause';
+    }
 
   // ── Création des cartes ──────────────────────────────────
 
@@ -133,23 +160,33 @@ export class DOMManager {
    * @param {number}  found   - Paires trouvées
    * @param {number}  total   - Paires totales
    */
-  showEndModal(won, seconds, found, total) {
+  showEndModal(won, seconds, found, total, timeout = false) {
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
     const ss = String(seconds % 60).padStart(2, '0');
+
     const LoseSound = new Audio("./assets/sounds/lose.wav");
     const WinSound = new Audio("./assets/sounds/win.wav");
 
-    document.getElementById('modalIcon').textContent  = won ? '🎉' : '😔';
-    if(won) {
-      document.getElementById('modalTitle').textContent = 'Bravo !';
+    document.getElementById('modalIcon').textContent =
+        won ? '🎉' : '😔';
+
+    if (won) {
+      document.getElementById('modalTitle').textContent =
+          'Bravo !';
       WinSound.play();
 
+    } else if (timeout) {
+      document.getElementById('modalTitle').textContent =
+          'Il ne vous reste plus de temps !';
+      LoseSound.play();
+
     } else {
-      document.getElementById('modalTitle').textContent = 'Vous avez perdu!';
+      document.getElementById('modalTitle').textContent =
+          'Vous avez perdu!';
       LoseSound.play();
     }
 
-    document.getElementById('modalBody').textContent  = won
+    document.getElementById('modalBody').textContent = won
         ? `Toutes les paires trouvées en ${mm}:${ss} !`
         : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
 

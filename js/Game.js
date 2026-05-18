@@ -29,7 +29,8 @@ export class Game {
 
   /** Verrou : bloque les clics pendant la vérification d'une paire */
   /** @type {boolean}       */ #locked  = false;
-
+  /** Pause: bloque le chronomètre et les clics **/
+  /** @type {boolean} */ #paused = false;
   /** Les deux cartes actuellement retournées */
   /** @type {HTMLElement[]} */ #flipped = [];
 
@@ -55,6 +56,7 @@ export class Game {
     // this.#gameScore = 0; // score de partie.
     this.#elapsedSecs = 0;
     this.#locked      = false;
+    this.#paused      = false;
     this.#flipped     = [];
     this.#hardcore = hardcore;
     this.#moveCounter = 0;
@@ -73,16 +75,31 @@ export class Game {
     this.#dom.updatePairsCounter(0, this.#totalPairs);
     this.#dom.updateTimer(0);
     this.#dom.showGame();
-
-    // Création du plateau de cartes
+    this.#dom.setPauseButton(false); // s'assure que le bouton affiche ⏸ au départ
     this.#dom.createCards(images, (card) => this.#onCardClick(card));
-
-    // Lancement du chronomètre
     this.#startTimer();
   }
+      // ── Pause ─────────────────────────────────────────────────
 
-  // ── Fin de partie ─────────────────────────────────────────
+    /**
+     * Bascule l'état de pause.
+     * Met en pause : arrête le chrono, bloque les clics, affiche l'overlay.
+     * Reprend : relance le chrono, débloque les clics, cache l'overlay.
+     **/
+    togglePause() {
+        this.#paused = !this.#paused;
 
+        if (this.#paused) {
+            this.#stopTimer();
+            this.#dom.showPauseOverlay();
+            this.#dom.setPauseButton(true);
+        } else {
+            this.#startTimer();
+            this.#dom.hidePauseOverlay();
+            this.#dom.setPauseButton(false);
+        }
+    }
+// ── Fin de partie ─────────────────────────────────────────
   /**
    * Termine la partie : arrête le chrono, notifie l'API, affiche le résultat.
    *
@@ -91,7 +108,9 @@ export class Game {
   async endGame(won = false) {
     this.#stopTimer();
     this.#locked = true; // bloque tout clic pendant l'appel API
-
+    this.#paused = false;
+    this.#dom.hidePauseOverlay();
+    
     const pairsRemaining = this.#totalPairs - this.#foundPairs;
     const timeUsed = (DIFFICULTY_TIME[this.#difficulty] ?? 60) - this.#elapsedSecs;
 
@@ -111,13 +130,14 @@ export class Game {
   /**
    * Traite le clic sur une carte.
    * @param {HTMLElement} card
-   */
+   **/
   #onCardClick(card) {
     // Ignore si verrou actif, carte déjà trouvée ou déjà dans les deux retournées
     if (this.#locked)                       return;
+    if(this.#paused)                        return; // Bloqué en pause.
     if (card.classList.contains('matched')) return;
     if (this.#flipped.includes(card))       return;
-    if (this.#swapInProgress) return;
+    if (this.#swapInProgress)               return;
 
 
     this.#dom.flipCard(card);
@@ -128,96 +148,89 @@ export class Game {
     }
   }
 
-  /**
-   * Vérifie si les deux cartes retournées forment une paire
-   * en comparant leur attribut data-image-id.
-   */
-  #checkPair() {
-    this.#locked = true;
-    const [cardA, cardB] = this.#flipped;
+    /**
+     * Vérifie si les deux cartes retournées forment une paire
+     * en comparant leur attribut data-image-id.
+     **/
+    #checkPair() {
+        this.#locked = true;
+        const [cardA, cardB] = this.#flipped;
 
-    // Chaque paire de cartes retournées = 1 coup
-    this.#moveCounter++;
+        this.#moveCounter++;
 
-    // Mode Hardcore : swap toutes les 2 tentatives
-    if (this.#hardcore && this.#moveCounter === 2) {
-      this.#moveCounter = 0;
+        // Mode Hardcore : swap toutes les 2 tentatives
+        if (this.#hardcore && this.#moveCounter === 2) {
+            this.#moveCounter = 0;
 
-      // attendre la fin du flip avant de swap
-      // attendre la fin réelle de l’animation de flip
-      const waitForFlipEnd = () => {
-        cardB.querySelector(".card-inner").removeEventListener("transitionend", waitForFlipEnd);
-        this.#swapTwoCards();
-      };
-
-      cardB.querySelector(".card-inner").addEventListener("transitionend", waitForFlipEnd);
-
-    }
-
-    if (cardA.dataset.imageId === cardB.dataset.imageId) {
-      this.#dom.lockCard(cardA);
-      this.#dom.lockCard(cardB);
-      this.#foundPairs++;
-      this.#dom.updatePairsCounter(this.#foundPairs, this.#totalPairs);
-      this.#flipped = [];
-      this.#locked  = false;
-
-      // Victoire si toutes les paires sont découvertes
-      if (this.#foundPairs === this.#totalPairs) {
-        this.endGame(true);
-      }
-    } else {
-      setTimeout(() => {
-        this.#dom.unflipCard(cardA);
-        this.#dom.unflipCard(cardB);
-        this.#flipped = [];
-        if (!this.#swapInProgress) {
-          this.#locked = false;
+            const waitForFlipEnd = () => {
+                cardB.querySelector('.card-inner').removeEventListener('transitionend', waitForFlipEnd);
+                this.#swapTwoCards();
+            };
+            cardB.querySelector('.card-inner').addEventListener('transitionend', waitForFlipEnd);
         }
 
-      }, 1000);
+        if (cardA.dataset.imageId === cardB.dataset.imageId) {
+            this.#dom.lockCard(cardA);
+            this.#dom.lockCard(cardB);
+            this.#foundPairs++;
+            this.#dom.updatePairsCounter(this.#foundPairs, this.#totalPairs);
+            this.#flipped = [];
+            this.#locked  = false;
+
+            if (this.#foundPairs === this.#totalPairs) {
+                this.endGame(true);
+            }
+        } else {
+            setTimeout(() => {
+                this.#dom.unflipCard(cardA);
+                this.#dom.unflipCard(cardB);
+                this.#flipped = [];
+                if (!this.#swapInProgress) {
+                    this.#locked = false;
+                }
+            }, 1000);
+        }
     }
-  }
-  #swapTwoCards() {
-    this.#swapInProgress = true;
-    this.#locked = true;
 
-    const cards = Array.from(document.querySelectorAll('.card'))
-        .filter(c => !c.classList.contains('matched'));
 
-    if (cards.length < 2) {
-      this.#swapInProgress = false;
-      this.#locked = false;
-      return;
+    #swapTwoCards() {
+        this.#swapInProgress = true;
+        this.#locked = true;
+
+        const cards = Array.from(document.querySelectorAll('.card'))
+            .filter(c => !c.classList.contains('matched'));
+
+        if (cards.length < 2) {
+            this.#swapInProgress = false;
+            this.#locked = false;
+            return;
+        }
+
+        const a = cards[Math.floor(Math.random() * cards.length)];
+        let b   = cards[Math.floor(Math.random() * cards.length)];
+        while (b === a) {
+            b = cards[Math.floor(Math.random() * cards.length)];
+        }
+
+        a.classList.add('shake');
+        b.classList.add('shake');
+
+        setTimeout(() => {
+            a.classList.remove('shake');
+            b.classList.remove('shake');
+
+            const parent = a.parentNode;
+            const aNext  = a.nextSibling;
+            b.before(a);
+            parent.insertBefore(b, aNext);
+
+            setTimeout(() => {
+                this.#swapInProgress = false;
+                this.#locked = false;
+            }, 150);
+        }, 400);
     }
 
-    const a = cards[Math.floor(Math.random() * cards.length)];
-    let b = cards[Math.floor(Math.random() * cards.length)];
-
-    while (b === a) {
-      b = cards[Math.floor(Math.random() * cards.length)];
-    }
-
-    a.classList.add("shake");
-    b.classList.add("shake");
-
-    setTimeout(() => {
-      a.classList.remove("shake");
-      b.classList.remove("shake");
-
-      const parent = a.parentNode;
-      const aNext = a.nextSibling;
-
-      b.before(a);
-      parent.insertBefore(b, aNext);
-
-      setTimeout(() => {
-        this.#swapInProgress = false;
-        this.#locked = false;
-      }, 150);
-
-    }, 400);
-  }
 
 
 
@@ -229,11 +242,11 @@ export class Game {
       this.#elapsedSecs--;
       this.#dom.updateTimer(this.#elapsedSecs);
       if(this.#elapsedSecs <= 0) {
-        this.endGame(false, 'timeout');
+        this.endGame(false);
       }
     }, 1000);
   }
-
+  // Arrête chronomètre.
   #stopTimer() {
     if (this.#timerID !== null) {
       clearInterval(this.#timerID);

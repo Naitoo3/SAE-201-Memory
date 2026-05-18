@@ -10,9 +10,10 @@ const domManager = new DOMManager();
 document.getElementById('gameForm').addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  const pseudo     = document.getElementById('PlayerName').value.trim();
-  const difficulty = parseInt(document.getElementById('DifficultyValue').value);
-  const theme = document.getElementById('ImageValue').value;
+    const pseudo     = document.getElementById('PlayerName').value.trim();
+    const difficulty = parseInt(document.getElementById('DifficultyValue').value);
+    const theme      = document.getElementById('ImageValue').value;
+    const hardcore   = document.getElementById('HardcoreMode').checked;
 
   if (!pseudo || !difficulty || !theme) {
     alert('Merci de remplir tous les champs.');
@@ -27,9 +28,7 @@ document.getElementById('gameForm').addEventListener('submit', async (event) => 
     // Création de la partie côté serveur
     const data = await ApiService.createGame(pseudo, difficulty);
     console.log('Partie créée — id :', data.id);
-
-    // Démarrage local du jeu
-    game.startGame(data.id, pseudo, difficulty, theme);
+    game.startGame(data.id, pseudo, difficulty, theme, hardcore);
 
   } catch (error) {
     console.error('Erreur création partie :', error);
@@ -38,6 +37,11 @@ document.getElementById('gameForm').addEventListener('submit', async (event) => 
     startBtn.disabled    = false;
     startBtn.textContent = '▶ Démarrer';
   }
+});
+
+// ── Bouton Pause ───────────────────────────────────────────
+document.getElementById('pauseButton').addEventListener('click', () => {
+    game.togglePause();
 });
 
 // ── Bouton Abandonner ──────────────────────────────────────
