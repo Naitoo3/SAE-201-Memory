@@ -160,33 +160,29 @@ export class DOMManager {
    * @param {number}  found   - Paires trouvées
    * @param {number}  total   - Paires totales
    */
-  showEndModal(won, seconds, found, total, timeout = false) {
+  showEndModal(won, seconds, found, total, reason = 'abandon') {
     const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
     const ss = String(seconds % 60).padStart(2, '0');
-
     const LoseSound = new Audio("./assets/sounds/lose.wav");
     const WinSound = new Audio("./assets/sounds/win.wav");
 
-    document.getElementById('modalIcon').textContent =
-        won ? '🎉' : '😔';
-
-    if (won) {
-      document.getElementById('modalTitle').textContent =
-          'Bravo !';
+    if(won) {
+      document.getElementById('modalIcon').textContent  = '🎉' ;
+      document.getElementById('modalTitle').textContent = 'Bravo !';
       WinSound.play();
 
-    } else if (timeout) {
-      document.getElementById('modalTitle').textContent =
-          'Il ne vous reste plus de temps !';
+    } else if (reason === 'timeout'){
+      document.getElementById('modalIcon').textContent  = '⏰';
+      document.getElementById('modalTitle').textContent = 'Vous avez perdu ! Trop lent ';
       LoseSound.play();
-
-    } else {
-      document.getElementById('modalTitle').textContent =
-          'Vous avez perdu!';
+    }
+    else {
+      document.getElementById('modalIcon').textContent  = '😔';
+      document.getElementById('modalTitle').textContent = 'Vous avez abandonné!';
       LoseSound.play();
     }
 
-    document.getElementById('modalBody').textContent = won
+    document.getElementById('modalBody').textContent  = won
         ? `Toutes les paires trouvées en ${mm}:${ss} !`
         : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
 

@@ -105,7 +105,7 @@ export class Game {
    *
    * @param {boolean} [won=false] - true si toutes les paires ont été trouvées
    */
-  async endGame(won = false) {
+  async endGame(won = false, reason = 'abandon') {
     this.#stopTimer();
     this.#locked = true; // bloque tout clic pendant l'appel API
     this.#paused = false;
@@ -122,7 +122,7 @@ export class Game {
       console.error('Erreur fin de partie :', error);
     }
 
-    this.#dom.showEndModal(won,timeUsed, this.#foundPairs, this.#totalPairs);
+    this.#dom.showEndModal(won,timeUsed, this.#foundPairs, this.#totalPairs, reason);
   }
 
   // ── Logique de clic ───────────────────────────────────────
@@ -242,7 +242,7 @@ export class Game {
       this.#elapsedSecs--;
       this.#dom.updateTimer(this.#elapsedSecs);
       if(this.#elapsedSecs <= 0) {
-        this.endGame(false);
+        this.endGame(false, 'timeout');
       }
     }, 1000);
   }
