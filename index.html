@@ -62,6 +62,11 @@
             <label for="HardcoreMode" class="hardcore-label">Mode Hardcore 🔥</label>
         </div>
 
+        <div class="fugace-container">
+            <input type="checkbox" id="FugaceMode" class="fugace-checkbox">
+            <label for="FugaceMode" class="fugace-label">Mode Fugace 👁️</label>
+        </div>
+
         <div class="btn-container">
             <button type="submit" class="btn-start" id="startButton">▶ Démarrer</button>
         </div>
@@ -91,6 +96,12 @@
                 <span class="pause-icon">⏸</span>
                 <p>Partie en pause</p>
                 <p class="pause-hint">Cliquez sur "Reprendre" pour continuer</p>
+            </div>
+        </div>
+        <div class="fugace-overlay hidden" id="fugaceOverlay">
+            <div class="fugace-overlay-content">
+                <p class="fugace-countdown" id="fugaceCountdown">3</p>
+                <p class="fugace-hint">Mémorisez les cartes !</p>
             </div>
         </div>
     </div>
