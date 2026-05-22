@@ -509,7 +509,83 @@ body.light #icon-moon { display: none; }
 .modal-title { font-size: 1.75rem; font-weight: 700; color: var(--color-text-title); }
 .modal-body  { font-size: 1rem; color: var(--color-text-label); line-height: 1.6; }
 
-/* ── Responsive ── */
+/* ── Bouton Information ── */
+.btn-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 40px;
+    background-color: oklch(0.55 0.13 250);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-info:hover {
+    background-color: oklch(0.45 0.13 250);
+    transform: translateY(-1px);
+}
+
+.light .btn-info {
+    background-color: #6366f1;
+}
+
+.light .btn-info:hover {
+    background-color: #4f46e5;
+}
+
+/* ── Modale Information ── */
+.info-modal-box {
+    max-width: 30rem;
+    width: 92%;
+    text-align: left;
+    gap: 0;
+    padding: 2rem;
+}
+
+.info-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-title);
+    text-align: center;
+    border-bottom: 2px solid var(--color-border-card);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.info-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    color: var(--color-text-label);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 1.25rem;
+}
+
+.info-modal-body h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-heading);
+    margin-top: 0.5rem;
+}
+
+.info-modal-body ul {
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+
 @media (max-width: 480px) {
     .header { flex-direction: column; gap: 15px; }
     header h1 { font-size: 1.7rem; }

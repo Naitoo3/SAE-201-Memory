@@ -63,3 +63,30 @@ buttonTheme.addEventListener('click', () => {
   document.body.classList.toggle('light');
 });
 
+
+// ── Bouton Information ─────────────────────────────────────
+const btnInfo      = document.getElementById('btn-info');
+const infoModal    = document.getElementById('infoModal');
+const closeInfoBtn = document.getElementById('closeInfoModal');
+
+btnInfo.addEventListener('click', () => {
+    infoModal.classList.remove('hidden');
+});
+
+closeInfoBtn.addEventListener('click', () => {
+    infoModal.classList.add('hidden');
+});
+
+// Fermer en cliquant sur le fond
+infoModal.addEventListener('click', (e) => {
+    if (e.target === infoModal) {
+        infoModal.classList.add('hidden');
+    }
+});
+
+// Fermer avec la touche Échap
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !infoModal.classList.contains('hidden')) {
+        infoModal.classList.add('hidden');
+    }
+});
