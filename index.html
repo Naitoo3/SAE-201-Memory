@@ -12,13 +12,17 @@
 <header class="header">
     <h1>Jeu de Memory</h1>
 
+    <!-- Bouton Information -->
+    <button id="btn-info" class="btn-info">
+        ℹ️ Règles
+    </button>
+
+    <!-- Bouton thème -->
     <button id="btn-theme" class="btn-theme">
-        <!-- Lune (Feather Icons — croissant plein) -->
         <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
              fill="currentColor" viewBox="0 0 24 24">
             <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
         </svg>
-        <!-- Soleil (Bootstrap Icons) -->
         <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
              fill="currentColor" viewBox="0 0 16 16">
             <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707z"/>
@@ -57,9 +61,16 @@
             </select>
         </div>
 
+        <!-- Mode Hardcore -->
         <div class="hardcore-container">
             <input type="checkbox" id="HardcoreMode" class="hardcore-checkbox">
             <label for="HardcoreMode" class="hardcore-label">Mode Hardcore 🔥</label>
+        </div>
+
+        <!-- Mode Fugace -->
+        <div class="fugace-container">
+            <input type="checkbox" id="FugaceMode" class="fugace-checkbox">
+            <label for="FugaceMode" class="fugace-label">Mode Fugace 👁️</label>
         </div>
 
         <div class="btn-container">
@@ -76,21 +87,28 @@
         <h2 id="playerLabel">Joueur</h2>
         <span class="game-timer" id="gameTimer">00:00</span>
         <span class="pairs-counter" id="pairsCounter">Paires : 0 / 0</span>
-        <!-- Bouton Pause -->
         <button id="pauseButton" class="btn-pause">⏸ Pause</button>
         <button id="abandon">⛔ Abandonner</button>
     </div>
 
-    <!-- Zone du plateau + overlay de pause superposé -->
+    <!-- Plateau + overlays superposés -->
     <div class="game-board-wrapper">
         <div class="game-board" id="gameBoard"></div>
 
-        <!-- Overlay affiché par-dessus les cartes pendant la pause -->
+        <!-- Overlay pause -->
         <div class="pause-overlay hidden" id="pauseOverlay">
             <div class="pause-overlay-content">
                 <span class="pause-icon">⏸</span>
                 <p>Partie en pause</p>
                 <p class="pause-hint">Cliquez sur "Reprendre" pour continuer</p>
+            </div>
+        </div>
+
+        <!-- Overlay fugace -->
+        <div class="fugace-overlay hidden" id="fugaceOverlay">
+            <div class="fugace-overlay-content">
+                <p class="fugace-countdown" id="fugaceCountdown">3</p>
+                <p class="fugace-hint">Mémorisez les cartes !</p>
             </div>
         </div>
     </div>
@@ -104,6 +122,39 @@
         <h2 class="modal-title" id="modalTitle">Partie terminée !</h2>
         <p class="modal-body" id="modalBody"></p>
         <button class="btn-start" id="modalRestart">↺ Rejouer</button>
+    </div>
+</div>
+
+<!-- ── Modale Information ── -->
+<div class="modal-overlay hidden" id="infoModal">
+    <div class="modal-box info-modal-box">
+        <h2 class="info-modal-title">ℹ️ Comment jouer ?</h2>
+        <div class="info-modal-body">
+            <h3>🎯 Objectif</h3>
+            <p>Retrouvez toutes les paires de cartes identiques avant la fin du temps imparti.</p>
+
+            <h3>🕹️ Déroulement</h3>
+            <ul>
+                <li>Cliquez sur une carte pour la retourner.</li>
+                <li>Retournez une seconde carte : si les deux images sont identiques, la paire est trouvée !</li>
+                <li>Sinon, les cartes se retournent face cachée après un court instant.</li>
+                <li>Trouvez toutes les paires avant que le temps ne soit écoulé.</li>
+            </ul>
+
+            <h3>⚙️ Niveaux</h3>
+            <ul>
+                <li><strong>Facile</strong> — 4 paires, 30 secondes</li>
+                <li><strong>Moyen</strong> — 8 paires, 45 secondes</li>
+                <li><strong>Difficile</strong> — 10 paires, 60 secondes</li>
+            </ul>
+
+            <h3>🔥 Mode Hardcore</h3>
+            <p>Toutes les 2 tentatives, deux cartes non trouvées s'échangent aléatoirement de place !</p>
+
+            <h3>👁️ Mode Fugace</h3>
+            <p>Toutes les cartes sont révélées pendant 3 secondes au début. Mémorisez-les bien, car la moindre erreur met fin à la partie !</p>
+        </div>
+        <button class="btn-start" id="closeInfoModal">✕ Fermer</button>
     </div>
 </div>
 

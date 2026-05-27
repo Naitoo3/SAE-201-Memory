@@ -6,120 +6,131 @@
 export class DOMManager {
 
     // ── Références DOM ───────────────────────────────────────
-    #setupPanel  = document.getElementById('setupPanel');
-    #gamePanel   = document.getElementById('gamePanel');
-    #gameBoard   = document.getElementById('gameBoard');
-    #timerEl     = document.getElementById('gameTimer');
-    #pairsEl     = document.getElementById('pairsCounter');
-    #playerLabel = document.getElementById('playerLabel');
-    #endModal    = document.getElementById('endModal');
-    #pauseOverlay = document.getElementById('pauseOverlay');
-    #pauseBtn    = document.getElementById('pauseButton');
+    #setupPanel      = document.getElementById('setupPanel');
+    #gamePanel       = document.getElementById('gamePanel');
+    #gameBoard       = document.getElementById('gameBoard');
+    #timerEl         = document.getElementById('gameTimer');
+    #pairsEl         = document.getElementById('pairsCounter');
+    #playerLabel     = document.getElementById('playerLabel');
+    #endModal        = document.getElementById('endModal');
+    #pauseOverlay    = document.getElementById('pauseOverlay');
+    #pauseBtn        = document.getElementById('pauseButton');
+    #fugaceOverlay   = document.getElementById('fugaceOverlay');
+    #fugaceCountdown = document.getElementById('fugaceCountdown');
 
+    // ── Visibilité des panneaux ──────────────────────────────
 
-  // ── Visibilité des panneaux ──────────────────────────────
+    /** Affiche la zone de jeu et cache le formulaire. */
+    showGame() {
+        this.#setupPanel.classList.add('hidden');
+        this.#gamePanel.classList.remove('hidden');
+    }
 
-  /** Affiche la zone de jeu et cache le formulaire. */
-  showGame() {
-    this.#setupPanel.classList.add('hidden');
-    this.#gamePanel.classList.remove('hidden');
-  }
+    /** Affiche le formulaire et cache la zone de jeu. */
+    showSetup() {
+        this.#gamePanel.classList.add('hidden');
+        this.#setupPanel.classList.remove('hidden');
+    }
 
-  /** Affiche le formulaire et cache la zone de jeu. **/
-  showSetup() {
-    this.#gamePanel.classList.add('hidden');
-    this.#setupPanel.classList.remove('hidden');
-  }
+    // ── En-tête de jeu ───────────────────────────────────────
 
-  // ── En-tête de jeu ───────────────────────────────────────
+    /** @param {string} name */
+    setPlayerName(name) {
+        this.#playerLabel.textContent = `👤 ${name}`;
+    }
 
-  /**
-   * Affiche le pseudo du joueur dans l'en-tête de jeu.
-   * @param {string} name
-   * @return none
-   **/
-  setPlayerName(name) {
-    this.#playerLabel.textContent = `👤 ${name}`;
-  }
+    // ── Chronomètre ──────────────────────────────────────────
 
-  // ── Chronomètre ──────────────────────────────────────────
+    /** @param {number} seconds */
+    updateTimer(seconds) {
+        const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const ss = String(seconds % 60).padStart(2, '0');
+        this.#timerEl.textContent = `${mm}:${ss}`;
+    }
 
-  /**
-   * Met à jour l'affichage du temps au format mm:ss.
-   * @param {number} seconds
-   **/
-  updateTimer(seconds) {
-    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const ss = String(seconds % 60).padStart(2, '0');
-    this.#timerEl.textContent = `${mm}:${ss}`;
-  }
-
-
-  // ── Compteur de paires ───────────────────────────────────
-
-  /**
-   * @param {number} found - Paires trouvées
-   * @param {number} total - Paires totales
-   **/
-  updatePairsCounter(found, total) {
-    this.#pairsEl.textContent = `Paires : ${found} / ${total}`;
-  }
-  
-   // ── Pause ────────────────────────────────────────────────
+    // ── Compteur de paires ───────────────────────────────────
 
     /**
-     * Affiche l'overlay de pause par-dessus le plateau.
-     * Les cartes deviennent invisibles tant que la pause est active.
+     * @param {number} found
+     * @param {number} total
      */
+    updatePairsCounter(found, total) {
+        this.#pairsEl.textContent = `Paires : ${found} / ${total}`;
+    }
+
+    // ── Pause ────────────────────────────────────────────────
+
     showPauseOverlay() {
         this.#pauseOverlay.classList.remove('hidden');
     }
 
-    /** Cache l'overlay de pause. */
     hidePauseOverlay() {
         this.#pauseOverlay.classList.add('hidden');
     }
 
-    /**
-     * Met à jour l'icône et le title du bouton pause selon l'état.
-     * @param {boolean} isPaused
-     */
+    /** @param {boolean} isPaused */
     setPauseButton(isPaused) {
         if (!this.#pauseBtn) return;
         this.#pauseBtn.textContent = isPaused ? '▶ Reprendre' : '⏸ Pause';
+        this.#pauseBtn.disabled    = false;
     }
 
-  // ── Création des cartes ──────────────────────────────────
-
-  /**
-   * Vide le plateau, crée et insère toutes les cartes mélangées.
-   *
-   * Chaque image est doublée pour former une paire.
-   * Le chemin du masque est relatif à index.html (racine du projet).
-   *
-   * @param {import('./types.js').Image[]} images  - Une image par paire souhaitée
-   * @param {(card: HTMLElement) => void}  onClick - Callback de clic
-   */
-  createCards(images, onClick) {
-    this.#gameBoard.innerHTML = '';
-
-    // Grille 5 colonnes au-delà de 16 cartes (diff. 3 → 20 cartes)
-    if (images.length * 2 > 16) {
-      this.#gameBoard.classList.add('cols-5');
-    } else {
-      this.#gameBoard.classList.remove('cols-5');
+    /**
+     * Désactive le bouton pause pendant la phase Fugace.
+     */
+    showFugacePauseWarning() {
+        if (!this.#pauseBtn) return;
+        this.#pauseBtn.textContent = '⚠️ Impossible pendant le mode Fugace';
+        this.#pauseBtn.disabled    = true;
     }
 
-    // Duplique chaque image pour former les paires, puis mélange
-    const deck = this.#shuffle([...images, ...images]);
+    /** Réactive le bouton pause une fois la phase Fugace terminée. */
+    resetPauseButton() {
+        if (!this.#pauseBtn) return;
+        this.#pauseBtn.textContent = '⏸ Pause';
+        this.#pauseBtn.disabled    = false;
+    }
 
-    deck.forEach((image) => {
-      const card = document.createElement('div');
-      card.classList.add('card');
-      // data-image-id sert à comparer les deux cartes retournées
-      card.dataset.imageId = image.id;
+    // ── Overlay Fugace ───────────────────────────────────────
 
-      card.innerHTML = `
+    /** @param {number} seconds */
+    showFugaceOverlay(seconds) {
+        this.#fugaceCountdown.textContent = seconds;
+        this.#fugaceOverlay.classList.remove('hidden');
+    }
+
+    /** @param {number} seconds */
+    updateFugaceCountdown(seconds) {
+        this.#fugaceCountdown.textContent = seconds;
+    }
+
+    hideFugaceOverlay() {
+        this.#fugaceOverlay.classList.add('hidden');
+    }
+
+    // ── Création des cartes ──────────────────────────────────
+
+    /**
+     * @param {import('./types.js').Image[]} images
+     * @param {(card: HTMLElement) => void}  onClick
+     */
+    createCards(images, onClick) {
+        this.#gameBoard.innerHTML = '';
+
+        if (images.length * 2 > 16) {
+            this.#gameBoard.classList.add('cols-5');
+        } else {
+            this.#gameBoard.classList.remove('cols-5');
+        }
+
+        const deck = this.#shuffle([...images, ...images]);
+
+        deck.forEach((image) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.imageId = image.id;
+
+            card.innerHTML = `
         <div class="card-inner">
           <div class="card-front">
             <img src="assets/images/mask1.jpg" alt="Carte cachée">
@@ -129,84 +140,74 @@ export class DOMManager {
           </div>
         </div>`;
 
-      card.addEventListener('click', () => onClick(card));
-      this.#gameBoard.appendChild(card);
-    });
-  }
-
-  // ── État des cartes ──────────────────────────────────────
-
-  /** Retourne une carte (révèle sa face image). */
-  flipCard(card)   { card.classList.add('flip'); }
-
-  /** Cache une carte (remet face cachée). */
-  unflipCard(card) { card.classList.remove('flip'); }
-
-  /**
-   * Marque une carte comme définitivement trouvée.
-   * Désactive le curseur pointer.
-   */
-  lockCard(card) {
-    card.classList.add('matched');
-    card.style.cursor = 'default';
-  }
-
-  // ── Modale de fin de partie ──────────────────────────────
-
-  /**
-   * Affiche la modale avec le résultat de la partie.
-   * @param {boolean} won     - true = victoire, false = abandon
-   * @param {number}  seconds - Temps total en secondes
-   * @param {number}  found   - Paires trouvées
-   * @param {number}  total   - Paires totales
-   */
-  showEndModal(won, seconds, found, total, reason = 'abandon') {
-    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const ss = String(seconds % 60).padStart(2, '0');
-    const LoseSound = new Audio("./assets/sounds/lose.wav");
-    const WinSound = new Audio("./assets/sounds/win.wav");
-
-    if(won) {
-      document.getElementById('modalIcon').textContent  = '🎉' ;
-      document.getElementById('modalTitle').textContent = 'Bravo !';
-      WinSound.play();
-
-    } else if (reason === 'timeout'){
-      document.getElementById('modalIcon').textContent  = '⏰';
-      document.getElementById('modalTitle').textContent = 'Vous avez perdu ! Trop lent ';
-      LoseSound.play();
-    }
-    else {
-      document.getElementById('modalIcon').textContent  = '😔';
-      document.getElementById('modalTitle').textContent = 'Vous avez abandonné!';
-      LoseSound.play();
+            card.addEventListener('click', () => onClick(card));
+            this.#gameBoard.appendChild(card);
+        });
     }
 
-    document.getElementById('modalBody').textContent  = won
-        ? `Toutes les paires trouvées en ${mm}:${ss} !`
-        : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
+    // ── État des cartes ──────────────────────────────────────
 
-    this.#endModal.classList.remove('hidden');
-  }
+    flipCard(card)   { card.classList.add('flip'); }
+    unflipCard(card) { card.classList.remove('flip'); }
 
-  /** Cache la modale de fin de partie. */
-  hideEndModal() {
-    this.#endModal.classList.add('hidden');
-  }
-
-  // ── Utilitaire privé ─────────────────────────────────────
-
-  /**
-   * Algorithme de mélange de Fisher-Yates
-   * @param {arr} - un tableau de cartes
-   * @returns {T[]} - un tableau de cartes mélangés.
-   **/
-  #shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+    lockCard(card) {
+        card.classList.add('matched');
+        card.style.cursor = 'default';
     }
-    return a;
-  }
+
+    // ── Modale de fin de partie ──────────────────────────────
+
+    /**
+     * @param {boolean} won
+     * @param {number}  seconds  - Temps utilisé
+     * @param {number}  found
+     * @param {number}  total
+     * @param {string}  [reason='abandon'] - 'abandon' | 'timeout' | 'fugace'
+     */
+    showEndModal(won, seconds, found, total, reason = 'abandon') {
+        const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const ss = String(seconds % 60).padStart(2, '0');
+
+        const loseSound = new Audio('./assets/sounds/lose.wav');
+        const winSound  = new Audio('./assets/sounds/win.wav');
+
+        if (won) {
+            document.getElementById('modalIcon').textContent  = '🎉';
+            document.getElementById('modalTitle').textContent = 'Bravo !';
+            winSound.play();
+        } else if (reason === 'timeout') {
+            document.getElementById('modalIcon').textContent  = '⏰';
+            document.getElementById('modalTitle').textContent = 'Temps écoulé !';
+            loseSound.play();
+        } else if (reason === 'fugace') {
+            document.getElementById('modalIcon').textContent  = '👁️';
+            document.getElementById('modalTitle').textContent = 'Erreur en mode Fugace !';
+            loseSound.play();
+        } else {
+            document.getElementById('modalIcon').textContent  = '😔';
+            document.getElementById('modalTitle').textContent = 'Vous avez abandonné !';
+            loseSound.play();
+        }
+
+        document.getElementById('modalBody').textContent = won
+            ? `Toutes les paires trouvées en ${mm}:${ss} !`
+            : `${found} paire(s) trouvée(s) sur ${total} en ${mm}:${ss}.`;
+
+        this.#endModal.classList.remove('hidden');
+    }
+
+    hideEndModal() {
+        this.#endModal.classList.add('hidden');
+    }
+
+    // ── Utilitaire privé ─────────────────────────────────────
+
+    #shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
 }

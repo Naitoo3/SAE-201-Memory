@@ -1,7 +1,7 @@
 import { ApiService }       from './ApiService.js';
 import { DOMManager }       from './DOMManager.js';
 import { imageCollections } from './ImageCollection.js';
-import { DIFFICULTY_PAIRS, DIFFICULTY_TIME } from './config.js';
+import { DIFFICULTY_PAIRS, DIFFICULTY_TIME, FUGACE_REVEAL_TIME } from './config.js';
 
 /**
  * Classe principale gérant la logique du jeu Memory.
@@ -14,79 +14,82 @@ import { DIFFICULTY_PAIRS, DIFFICULTY_TIME } from './config.js';
  **/
 export class Game {
 
-  // ── Attributs privés ────────────────────────────────────
-  /** @type {number}        */ #id;
-  /** @type {string}        */ #name;
-  /** @type {number}        */ #difficulty;
-//  /** @type {number}        */ #GameScore = 0;
-  /** @type {number}        */ #totalPairs  = 0;
-  /** @type {number}        */ #foundPairs  = 0;
-  /** @type {number}        */ #elapsedSecs = 0;
-  /** @type {number|null}   */ #timerID     = null;
-  /** @type {boolean}       */ #hardcore = false;
-  /** @type {number}        */ #moveCounter = 0;
-  /** @type {boolean}       */ #swapInProgress = false;
+    // ── Attributs privés ────────────────────────────────────
+    /** @type {number}        */ #id;
+    /** @type {string}        */ #name;
+    /** @type {number}        */ #difficulty;
+    /** @type {number}        */ #totalPairs      = 0;
+    /** @type {number}        */ #foundPairs      = 0;
+    /** @type {number}        */ #elapsedSecs     = 0;
+    /** @type {number|null}   */ #timerID         = null;
+    /** @type {boolean}       */ #hardcore        = false;
+    /** @type {number}        */ #moveCounter     = 0;
+    /** @type {boolean}       */ #swapInProgress  = false;
+    /** @type {boolean}       */ #locked          = false;
+    /** @type {boolean}       */ #paused          = false;
+    /** @type {HTMLElement[]} */ #flipped         = [];
+    /** @type {DOMManager}    */ #dom             = new DOMManager();
+    /** @type {boolean}       */ #fugace          = false;
+    /** @type {boolean}       */ #fugacePhaseActive = false; // true pendant les 3s de révélation
 
-  /** Verrou : bloque les clics pendant la vérification d'une paire */
-  /** @type {boolean}       */ #locked  = false;
-  /** Pause: bloque le chronomètre et les clics **/
-  /** @type {boolean} */ #paused = false;
-  /** Les deux cartes actuellement retournées */
-  /** @type {HTMLElement[]} */ #flipped = [];
+    // ── Démarrage ────────────────────────────────────────────
 
-  /** @type {DOMManager}    */ #dom = new DOMManager();
+    /**
+     * Initialise et lance une nouvelle partie.
+     *
+     * @param {number}  id         - ID de partie (réponse du serveur)
+     * @param {string}  name       - Pseudo du joueur
+     * @param {number}  difficulty - Niveau (1 | 2 | 3)
+     * @param {string}  theme      - Clé de collection ('animals' | 'cars' | 'fruits')
+     * @param {boolean} hardcore   - Activation mode hardcore
+     * @param {boolean} fugace     - Activation mode memory fugace
+     */
+    startGame(id, name, difficulty, theme, hardcore = false, fugace = false) {
+        this.#id               = id;
+        this.#name             = name;
+        this.#difficulty       = difficulty;
+        this.#foundPairs       = 0;
+        this.#elapsedSecs      = 0;
+        this.#locked           = false;
+        this.#paused           = false;
+        this.#flipped          = [];
+        this.#hardcore         = hardcore;
+        this.#moveCounter      = 0;
+        this.#fugace           = fugace;
+        this.#fugacePhaseActive = false;
 
-  // ── Démarrage ────────────────────────────────────────────
+        this.#totalPairs  = DIFFICULTY_PAIRS[difficulty] ?? 4;
+        this.#elapsedSecs = DIFFICULTY_TIME[difficulty]  ?? 30;
 
-  /**
-   * Initialise et lance une nouvelle partie.
-   *
-   * @param {number} id         - ID de partie (réponse du serveur)
-   * @param {string} name       - Pseudo du joueur
-   * @param {number} difficulty - Niveau (1 | 2 | 3)
-   * @param {string} theme      - Clé de collection ('animal' | 'cars' | 'fruits')
-   * @param hardcore
-   */
-  startGame(id, name, difficulty, theme, hardcore = false) {
-    // Sauvegarde de l'état
-    this.#id          = id;
-    this.#name        = name;
-    this.#difficulty  = difficulty;
-    this.#foundPairs  = 0;
-    // this.#gameScore = 0; // score de partie.
-    this.#elapsedSecs = 0;
-    this.#locked      = false;
-    this.#paused      = false;
-    this.#flipped     = [];
-    this.#hardcore = hardcore;
-    this.#moveCounter = 0;
+        const collection = imageCollections[theme] ?? imageCollections.animals;
+        const images     = this.#pickImages(collection, this.#totalPairs);
 
-    // Nombre de paires selon la difficulté (config.js)
-    this.#totalPairs = DIFFICULTY_PAIRS[difficulty] ?? 4;
-    this.#elapsedSecs = DIFFICULTY_TIME[difficulty] ?? 30;
+        this.#dom.setPlayerName(name);
+        this.#dom.updatePairsCounter(0, this.#totalPairs);
+        this.#dom.updateTimer(this.#elapsedSecs);
+        this.#dom.showGame();
+        this.#dom.setPauseButton(false);
+        this.#dom.createCards(images, (card) => this.#onCardClick(card));
 
-    // Sélection des images de la collection choisie
-    // Les collections ont 8 images : pour diff. 3 (10 paires) on boucle sur les 2 premières
-    const collection = imageCollections[theme] ?? imageCollections.animals;
-    const images = this.#pickImages(collection, this.#totalPairs);
+        if (this.#fugace) {
+            this.#startFugacePhase();
+        } else {
+            this.#startTimer();
+        }
+    }
 
-    // Mise à jour de l'interface
-    this.#dom.setPlayerName(name);
-    this.#dom.updatePairsCounter(0, this.#totalPairs);
-    this.#dom.updateTimer(0);
-    this.#dom.showGame();
-    this.#dom.setPauseButton(false); // s'assure que le bouton affiche ⏸ au départ
-    this.#dom.createCards(images, (card) => this.#onCardClick(card));
-    this.#startTimer();
-  }
-      // ── Pause ─────────────────────────────────────────────────
+    // ── Pause ─────────────────────────────────────────────────
 
     /**
      * Bascule l'état de pause.
-     * Met en pause : arrête le chrono, bloque les clics, affiche l'overlay.
-     * Reprend : relance le chrono, débloque les clics, cache l'overlay.
-     **/
+     * Bloquée pendant la phase Fugace.
+     */
     togglePause() {
+        if (this.#fugacePhaseActive) {
+            this.#dom.showFugacePauseWarning();
+            return;
+        }
+
         this.#paused = !this.#paused;
 
         if (this.#paused) {
@@ -99,59 +102,53 @@ export class Game {
             this.#dom.setPauseButton(false);
         }
     }
-// ── Fin de partie ─────────────────────────────────────────
-  /**
-   * Termine la partie : arrête le chrono, notifie l'API, affiche le résultat.
-   *
-   * @param {boolean} [won=false] - true si toutes les paires ont été trouvées
-   */
-  async endGame(won = false, reason = 'abandon') {
-    this.#stopTimer();
-    this.#locked = true; // bloque tout clic pendant l'appel API
-    this.#paused = false;
-    this.#dom.hidePauseOverlay();
-    
-    const pairsRemaining = this.#totalPairs - this.#foundPairs;
-    const timeUsed = (DIFFICULTY_TIME[this.#difficulty] ?? 60) - this.#elapsedSecs;
 
-    try {
-      await ApiService.updateGameResult(this.#id, pairsRemaining);
-      console.log(`Fin de partie envoyée — id: ${this.#id}, paires restantes: ${pairsRemaining}`);
-    } catch (error) {
-      // On affiche quand même la modale si le serveur est injoignable
-      console.error('Erreur fin de partie :', error);
-    }
-
-    this.#dom.showEndModal(won,timeUsed, this.#foundPairs, this.#totalPairs, reason);
-  }
-
-  // ── Logique de clic ───────────────────────────────────────
-
-  /**
-   * Traite le clic sur une carte.
-   * @param {HTMLElement} card
-   **/
-  #onCardClick(card) {
-    // Ignore si verrou actif, carte déjà trouvée ou déjà dans les deux retournées
-    if (this.#locked)                       return;
-    if(this.#paused)                        return; // Bloqué en pause.
-    if (card.classList.contains('matched')) return;
-    if (this.#flipped.includes(card))       return;
-    if (this.#swapInProgress)               return;
-
-
-    this.#dom.flipCard(card);
-    this.#flipped.push(card);
-
-    if (this.#flipped.length === 2) {
-      this.#checkPair();
-    }
-  }
+    // ── Fin de partie ─────────────────────────────────────────
 
     /**
-     * Vérifie si les deux cartes retournées forment une paire
-     * en comparant leur attribut data-image-id.
-     **/
+     * Termine la partie : arrête le chrono, notifie l'API, affiche le résultat.
+     *
+     * @param {boolean} [won=false]        - true si toutes les paires ont été trouvées
+     * @param {string}  [reason='abandon'] - 'abandon' | 'timeout'
+     */
+    async endGame(won = false, reason = 'abandon') {
+        this.#stopTimer();
+        this.#locked = true;
+        this.#paused = false;
+        this.#dom.hidePauseOverlay();
+
+        const pairsRemaining = this.#totalPairs - this.#foundPairs;
+        const timeUsed       = (DIFFICULTY_TIME[this.#difficulty] ?? 60) - this.#elapsedSecs;
+
+        try {
+            await ApiService.updateGameResult(this.#id, pairsRemaining);
+            console.log(`Fin de partie envoyée — id: ${this.#id}, paires restantes: ${pairsRemaining}`);
+        } catch (error) {
+            console.error('Erreur fin de partie :', error);
+        }
+
+        this.#dom.showEndModal(won, timeUsed, this.#foundPairs, this.#totalPairs, reason);
+    }
+
+    // ── Logique de clic ───────────────────────────────────────
+
+    /** @param {HTMLElement} card */
+    #onCardClick(card) {
+        if (this.#locked)                        return;
+        if (this.#paused)                        return;
+        if (this.#fugacePhaseActive)             return;
+        if (card.classList.contains('matched'))  return;
+        if (this.#flipped.includes(card))        return;
+        if (this.#swapInProgress)                return;
+
+        this.#dom.flipCard(card);
+        this.#flipped.push(card);
+
+        if (this.#flipped.length === 2) {
+            this.#checkPair();
+        }
+    }
+
     #checkPair() {
         this.#locked = true;
         const [cardA, cardB] = this.#flipped;
@@ -161,7 +158,6 @@ export class Game {
         // Mode Hardcore : swap toutes les 2 tentatives
         if (this.#hardcore && this.#moveCounter === 2) {
             this.#moveCounter = 0;
-
             const waitForFlipEnd = () => {
                 cardB.querySelector('.card-inner').removeEventListener('transitionend', waitForFlipEnd);
                 this.#swapTwoCards();
@@ -170,6 +166,7 @@ export class Game {
         }
 
         if (cardA.dataset.imageId === cardB.dataset.imageId) {
+            // Paire trouvée
             this.#dom.lockCard(cardA);
             this.#dom.lockCard(cardB);
             this.#foundPairs++;
@@ -181,36 +178,43 @@ export class Game {
                 this.endGame(true);
             }
         } else {
-            setTimeout(() => {
-                this.#dom.unflipCard(cardA);
-                this.#dom.unflipCard(cardB);
-                this.#flipped = [];
-                if (!this.#swapInProgress) {
-                    this.#locked = false;
-                }
-            }, 1000);
+            if (this.#fugace) {
+                // Mode Fugace : une seule erreur = partie perdue
+                setTimeout(() => {
+                    this.#dom.unflipCard(cardA);
+                    this.#dom.unflipCard(cardB);
+                    this.#flipped = [];
+                    this.endGame(false, 'fugace');
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    this.#dom.unflipCard(cardA);
+                    this.#dom.unflipCard(cardB);
+                    this.#flipped = [];
+                    if (!this.#swapInProgress) {
+                        this.#locked = false;
+                    }
+                }, 1000);
+            }
         }
     }
 
-
     #swapTwoCards() {
         this.#swapInProgress = true;
-        this.#locked = true;
+        this.#locked         = true;
 
         const cards = Array.from(document.querySelectorAll('.card'))
             .filter(c => !c.classList.contains('matched'));
 
         if (cards.length < 2) {
             this.#swapInProgress = false;
-            this.#locked = false;
+            this.#locked         = false;
             return;
         }
 
         const a = cards[Math.floor(Math.random() * cards.length)];
-        let b   = cards[Math.floor(Math.random() * cards.length)];
-        while (b === a) {
-            b = cards[Math.floor(Math.random() * cards.length)];
-        }
+        let   b = cards[Math.floor(Math.random() * cards.length)];
+        while (b === a) b = cards[Math.floor(Math.random() * cards.length)];
 
         a.classList.add('shake');
         b.classList.add('shake');
@@ -226,62 +230,81 @@ export class Game {
 
             setTimeout(() => {
                 this.#swapInProgress = false;
-                this.#locked = false;
+                this.#locked         = false;
             }, 150);
         }, 400);
     }
 
+    // ── Mode Fugace ───────────────────────────────────────────
 
+    #startFugacePhase() {
+        this.#fugacePhaseActive = true;
+        this.#locked            = true;
 
+        const allCards = document.querySelectorAll('.card');
+        allCards.forEach(card => this.#dom.flipCard(card));
 
-  // ── Chronomètre ──────────────────────────────────────────
+        let remaining = FUGACE_REVEAL_TIME;
+        this.#dom.showFugaceOverlay(remaining);
 
-  #startTimer() {
-    this.#stopTimer(); // évite les doublons si on relance sans recharger
-    this.#timerID = setInterval(() => {
-      this.#elapsedSecs--;
-      this.#dom.updateTimer(this.#elapsedSecs);
-      if(this.#elapsedSecs <= 0) {
-        this.endGame(false, 'timeout');
-      }
-    }, 1000);
-  }
-  // Arrête chronomètre.
-  #stopTimer() {
-    if (this.#timerID !== null) {
-      clearInterval(this.#timerID);
-      this.#timerID = null;
+        const interval = setInterval(() => {
+            remaining--;
+            if (remaining > 0) {
+                this.#dom.updateFugaceCountdown(remaining);
+            } else {
+                clearInterval(interval);
+                this.#dom.hideFugaceOverlay();
+
+                allCards.forEach(card => this.#dom.unflipCard(card));
+
+                this.#fugacePhaseActive = false;
+                this.#locked            = false;
+                this.#dom.resetPauseButton();
+                this.#startTimer();
+            }
+        }, 1000);
     }
-  }
 
-  // ── Sélection des images ──────────────────────────────────
+    // ── Chronomètre ──────────────────────────────────────────
 
-  /**
-   * Retourne exactement `count` images depuis la collection.
-   * Si la collection a moins d'images que 'count', elle boucle sur le début
-   * en changeant l'id pour que les paires restent distinctes.
-   *
-   * @param {import('./types.js').Image[]} collection
-   * @param {number} count
-   * @returns {import('./types.js').Image[]}
-   */
-  #pickImages(collection, count) {
-    const result = [];
-    for (let i = 0; i < count; i++) {
-      const src = collection[i % collection.length];
-      result.push({
-        id:   i + 1,           // id unique pour chaque paire
-        name: src.name,
-        url:  src.url,
-      });
+    #startTimer() {
+        this.#stopTimer();
+        this.#timerID = setInterval(() => {
+            this.#elapsedSecs--;
+            this.#dom.updateTimer(this.#elapsedSecs);
+            if (this.#elapsedSecs <= 0) {
+                this.endGame(false, 'timeout');
+            }
+        }, 1000);
     }
-    return result;
-  }
 
-  // ── Getter ────────────────────────────────────────────────
+    #stopTimer() {
+        if (this.#timerID !== null) {
+            clearInterval(this.#timerID);
+            this.#timerID = null;
+        }
+    }
 
-  /** @returns {number} Paires restant à trouver */
-  get pairsRemaining() {
-    return this.#totalPairs - this.#foundPairs;
-  }
+    // ── Sélection des images ──────────────────────────────────
+
+    /**
+     * @param {import('./types.js').Image[]} collection
+     * @param {number} count
+     * @returns {import('./types.js').Image[]}
+     */
+    #pickImages(collection, count) {
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            const src = collection[i % collection.length];
+            result.push({ id: i + 1, name: src.name, url: src.url });
+        }
+        return result;
+    }
+
+    // ── Getter ────────────────────────────────────────────────
+
+    /** @returns {number} Paires restant à trouver */
+    get pairsRemaining() {
+        return this.#totalPairs - this.#foundPairs;
+    }
 }
