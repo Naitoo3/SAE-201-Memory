@@ -8,7 +8,6 @@ Jeu de type Memory conçu dans le cadre de la SAE 2-01
 - Bouton thème (menu déroulant) ✅
 - Bruitages en cas de défaite/victoire ✅
 - Chronomètre décroissant en fonction de la difficulté ✅
-- Compteur pour le score (calcul du score)
-- Leaderboard (meilleur temps)
-- Bouton pause
-- Mode hard avec le droit de retourner chaque carte une fois ou Mode Hard avec des triplets de 3 et non des paires de 2
+- Bouton Pause ✅
+# Mise en route :
+  - Lancer PHPStorm, mettez en ligne un serveur WEB, exécutez le serveur, il fera une redirection vers l'API de notre professeur d'IHM (L.G)
