@@ -107,7 +107,7 @@ export class Game {
 
     /**
      * Termine la partie : arrête le chrono, notifie l'API, affiche le résultat.
-     *
+     *  - cette fonction attend une promise passée avant qu'elle ne s'éxécute, ici, c'est la condition is dead
      * @param {boolean} [won=false]        - true si toutes les paires ont été trouvées
      * @param {string}  [reason='abandon'] - 'abandon' | 'timeout'
      */
@@ -132,14 +132,20 @@ export class Game {
 
     // ── Logique de clic ───────────────────────────────────────
 
-    /** @param {HTMLElement} card */
+    /**
+     * - Fonction de click sur les cartes
+     * @param card - Une carte lambda.
+     * @return true si une des conditions est vérifiée (dans le if), sinon retourne la carte et vérifie la paire.
+     */
     #onCardClick(card) {
-        if (this.#locked)                        return;
-        if (this.#paused)                        return;
-        if (this.#fugacePhaseActive)             return;
-        if (card.classList.contains('matched'))  return;
-        if (this.#flipped.includes(card))        return;
-        if (this.#swapInProgress)                return;
+        if (
+            this.#locked ||
+            this.#paused ||
+            this.#fugacePhaseActive ||
+            card.classList.contains('matched') ||
+            this.#flipped.includes(card) ||
+            this.#swapInProgress
+        ) return;
 
         this.#dom.flipCard(card);
         this.#flipped.push(card);
@@ -149,6 +155,9 @@ export class Game {
         }
     }
 
+    /**
+     * Vérifie si la paire entre deux cartes est correcte
+     */
     #checkPair() {
         this.#locked = true;
         const [cardA, cardB] = this.#flipped;
@@ -199,6 +208,9 @@ export class Game {
         }
     }
 
+    /**
+     * Fonction destinée au mode de difficulté HARDCORE: Echange deux cartes dans deux endroits aléatoires en fonction du nombre de paires
+     */
     #swapTwoCards() {
         this.#swapInProgress = true;
         this.#locked         = true;
@@ -216,7 +228,7 @@ export class Game {
         let   b = cards[Math.floor(Math.random() * cards.length)];
         while (b === a) b = cards[Math.floor(Math.random() * cards.length)];
 
-        a.classList.add('shake');
+        a.classList.add('shake'); // effet de tremblement, indique le déplacement
         b.classList.add('shake');
 
         setTimeout(() => {
@@ -228,6 +240,7 @@ export class Game {
             b.before(a);
             parent.insertBefore(b, aNext);
 
+            //Délai
             setTimeout(() => {
                 this.#swapInProgress = false;
                 this.#locked         = false;
@@ -237,6 +250,9 @@ export class Game {
 
     // ── Mode Fugace ───────────────────────────────────────────
 
+    /**
+     * Démaragge du mode FUGACE: Parcours tt les cartes et les affiche puis n'autorise plus de les afficher
+     */
     #startFugacePhase() {
         this.#fugacePhaseActive = true;
         this.#locked            = true;
