@@ -16,4 +16,4 @@ Jeu de type Memory conçu dans le cadre de la SAE 2-01
 # Mise en route :
   - Lancer PHPStorm, mettez en ligne un serveur WEB, exécutez le serveur, il fera une redirection vers l'API de notre professeur d'IHM (L.G)
 # Accès au jeu en ligne :
-https://www.Naitoo3.github.io
+Naitoo3.github.io
